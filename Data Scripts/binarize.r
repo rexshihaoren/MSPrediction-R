@@ -1,5 +1,6 @@
 setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
 # get modified-fam2
+require(ggplot2)
 modfam2<-read.csv("step3/data_all.csv")
 # only 5 cols, group1~3, relative-pain, enjoylife
 modfam2<-modfam2[,9:13]
@@ -8,29 +9,38 @@ load("step1/result.RData")
 # get rid visitID
 fam2<-fam2[,-1]
 # plotting PDF
-mf<-ggplot(modfam2, aes(x=EnjoyLife))
-mf + geom_density()
-ggsave(file="modfam2.pdf")
-f<-ggplot(fam2,aes(x=EnjoyLife))
-f + geom_histogram()
-ggsave(file="fam2.pdf")
-# reorder fam2 and modfam2 by EnjoyLife
-modfam2<-modfam2[with(modfam2, order(EnjoyLife)), ]
-fam2<-fam2[with(fam2, order(EnjoyLife)), ]
+ggplot(modfam2) + geom_histogram(aes(x=EnjoyLife))
+ggsave(file="plots/modfam2.pdf")
+ggplot(fam2) + geom_histogram(aes(x=EnjoyLife))
+ggsave(file="plots/fam2.pdf")
+# find the enjoy life median
+medianEL<- median(modfam2$EnjoyLife)
 # binarize the modfam2, fam2
-nmfrow <- nrow(modfam2)
-modfam2$EnjoyLife[1:nmfrow/2] <- 0
-modfam2$EnjoyLife[(nmfrow/2+1):nmfrow] <- 1
-nfrow <- nrow(fam2)
-fam2$EnjoyLife[1:nfrow/2] <- 0
-fam2$EnjoyLife[(nfrow/2+1):nfrow] <-1
+modfam2$EnjoyLife<-ifelse(modfam2$EnjoyLife <= medianEL, 0, 1)
+fam2$EnjoyLife<-ifelse(fam2$EnjoyLife <= medianEL, 0, 1)
 # Plot PDF after binarize
-mf<-ggplot(modfam2, aes(x=EnjoyLife))
-mf + geom_density()
-ggsave(file="bin_modfam2.pdf")
-f<-ggplot(fam2,aes(x=EnjoyLife))
-f + geom_histogram()
-ggsave(file="bin_fam2.pdf")
+ggplot(modfam2) + geom_histogram(aes(x=EnjoyLife))
+ggsave(file="plots/bin_modfam2.pdf")
+ggplot(fam2) + geom_histogram(aes(x=EnjoyLife))
+ggsave(file="plots/bin_fam2.pdf")
 #save binarized fam2,modfam2
-save(fam2, file="bin_fam2.RData")
-save(modfam2, file="bin_modfam2.RData")
+save(fam2, file="data/bin_fam2.RData")
+save(modfam2, file="data/bin_modfam2.RData")
+# Plot CDF 
+generateCDF<-function(somedf, plotfunc){
+  dfname = deparse(substitute(somedf))
+  pfname = deparse(substitute(plotfunc))
+  for (i in colnames(somedf)){
+    if (i != "EnjoyLife"){
+      if (pfname == "geom_density"){
+        ggplot(somedf) + plotfunc(aes_string(x=i, group = "EnjoyLife", color = "EnjoyLife"))
+      } else {
+        ggplot(somedf) + plotfunc(aes_string(x=i, group = "EnjoyLife", fill = "EnjoyLife"), position = "dodge")
+      }
+      fpath = paste("plots/",paste(dfname, "cdf",i, sep = "_"), ".pdf", sep="")
+      ggsave(file = fpath)
+    }
+  }
+}
+generateCDF(modfam2,geom_density)
+generateCDF(fam2, geom_histogram)
