@@ -1,6 +1,7 @@
 setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
 # get modified-fam2
 require(ggplot2)
+require(rhdf5)
 modfam2<-read.csv("step3/data_all.csv")
 # only 5 cols, group1~3, relative-pain, enjoylife
 modfam2<-modfam2[,9:13]
@@ -23,9 +24,10 @@ ggplot(modfam2) + geom_histogram(aes(x=EnjoyLife))
 ggsave(file="plots/bin_modfam2.pdf")
 ggplot(fam2) + geom_histogram(aes(x=EnjoyLife))
 ggsave(file="plots/bin_fam2.pdf")
-#save binarized fam2,modfam2
-save(fam2, file="data/bin_fam2.RData")
-save(modfam2, file="data/bin_modfam2.RData")
+#save binarized fam2,modfam2 in HDF5 format
+h5createFile('data/predData.h5')
+h5write(fam2, "data/predData.h5","fam2")
+h5write(modfam2,"data/predData.h5","modfam2")
 # Plot CDF 
 generateCDF<-function(somedf, plotfunc){
   dfname = deparse(substitute(somedf))
