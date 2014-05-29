@@ -30,10 +30,6 @@ fam2$EnjoyLife<-ifelse(fam2$EnjoyLife <= medianEL, 0, 1)
 # Plot PDF after binarize
 genhisto(modfam2, "EnjoyLife", "bin_modfam2")
 genhisto(fam2, "EnjoyLife", "bin_fam2")
-# ggplot(modfam2) + geom_histogram(aes(x=EnjoyLife))
-# ggsave(file="plots/bin_modfam2.pdf")
-# ggplot(fam2) + geom_histogram(aes(x=EnjoyLife))
-# ggsave(file="plots/bin_fam2.pdf")
 #save binarized fam2,modfam2 in HDF5 format
 h5createFile('data/predData.h5')
 h5write(fam2, "data/predData.h5","fam2")
