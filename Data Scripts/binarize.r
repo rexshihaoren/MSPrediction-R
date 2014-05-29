@@ -4,10 +4,23 @@ require(ggplot2)
 require(rhdf5)
 require(MASS)
 modfam2<-read.csv("step3/data_all.csv")
-# only 5 cols, group1~3, relative-pain, enjoylife
-modfam2<-modfam2[,9:13]
 # fetch original fam2
 load("step1/result.RData")
+
+# Merge fam2, modfam2, fullTable3
+
+#First change fam2 colname "VisitId" to "VisitID"
+colnames(fam2)[1] = "VisitID"
+#merged = merge(fam2, modfam2, by = "VisitID", all.y = TRUE)
+merged = merge(fam2, modfam2)
+merged <- merge(merged, fullTable3)
+
+
+# only 5 cols, group1~3, relative-pain, enjoylife
+modfam2<-modfam2[,9:13]
+
+
+
 # get rid visitID
 fam2<-fam2[,-1]
 
@@ -30,10 +43,12 @@ fam2$EnjoyLife<-ifelse(fam2$EnjoyLife <= medianEL, 0, 1)
 # Plot PDF after binarize
 genhisto(modfam2, "EnjoyLife", "bin_modfam2")
 genhisto(fam2, "EnjoyLife", "bin_fam2")
-#save binarized fam2,modfam2 in HDF5 format
+
+#save binarized fam2,modfam2, merged in HDF5 format
 h5createFile('data/predData.h5')
 h5write(fam2, "data/predData.h5","fam2")
 h5write(modfam2,"data/predData.h5","modfam2")
+h5write(merged, "data/predData.h5", "merged")
 
 # Plot Conditional PDF 
 generateCPDF<-function(somedf, plotfunc, target){
