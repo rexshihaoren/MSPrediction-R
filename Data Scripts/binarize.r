@@ -2,6 +2,7 @@ setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
 # get modified-fam2
 require(ggplot2)
 require(rhdf5)
+require(MASS)
 modfam2<-read.csv("step3/data_all.csv")
 # only 5 cols, group1~3, relative-pain, enjoylife
 modfam2<-modfam2[,9:13]
