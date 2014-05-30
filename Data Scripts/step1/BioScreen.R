@@ -191,7 +191,7 @@ person_cor = get_cor(fssc3, "fssc", "fssc")
 ################################
 ## STEP 3: Combine fams and fssc
 ################################
-fams_fssc = merge(fam3, fssc3, by = "VisitId", all.x = TRUE, all.y= TRUE)
+fams_fssc = merge(fam3, fssc3, by = "VisitId", all.x = TRUE, all.y=TRUE)
 person_cor = get_cor(fams_fssc,"fams_fssc", "fams_fssc")
 
 
