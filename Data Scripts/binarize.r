@@ -3,6 +3,7 @@ setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
 require(ggplot2)
 require(rhdf5)
 require(MASS)
+require(fitdistrplus)
 modfam2<-read.csv("step3/data_all.csv")
 # fetch original fam2
 load("step1/result.RData")
@@ -68,3 +69,41 @@ generateCPDF<-function(somedf, plotfunc, target){
 }
 generateCPDF(modfam2,geom_density, "EnjoyLife")
 generateCPDF(fam2, geom_histogram, "EnjoyLife")
+
+fitCPDF<- function(df, xname, yname, f){
+  # Fitting Conditional pdf on top of histogram, and save that plot.
+  #
+  # Args: 
+  #   df: dataset
+  #   xname: target col name
+  #   yname: condition col name
+  #   f: string that indicated the density function put on top of the histogram
+  #
+  # Returns:
+  #   Model conditional pdf
+  dfname = deparse(substitute(df))
+  xcol <- df[[xname]]
+  ycol <- df[[yname]]
+  yrange = range(ycol)
+  sf <- list()
+  for (i in range(1,length(yrange))){
+    condData <- xcol[ycol == yrange[i]]
+    params <- c(fitdist(condData, f)$estimate)
+    # This step is IMPORTANT
+    dfunc = match.fun(paste('d', f, sep = ''))
+    sf[[i]] = stat_function(fun = dfunc, args = params)
+  }
+  # It is important here that binwidth is 1, so the y is actually density!!!
+ ggplot(df) + 
+   geom_histogram(aes_string(y="..density..", x=xname, group = yname, fill=yname), binwidth=1, position="dodge") + sf
+ # Save plots
+ fpath = paste("plots/",paste(dfname, "fitcpdf", xname,"on",yname, f, sep = "_"), ".pdf", sep="")
+ ggsave(file = fpath)
+}
+
+# Plot Fitted Histogram for fam2 with 'norm' normal distribution
+for (cname in colnames(fam2)){
+  if (cname != "EnjoyLife"){
+    fitCPDF(fam2, cname, "EnjoyLife", "norm")
+  }
+}
