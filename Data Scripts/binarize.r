@@ -58,7 +58,7 @@ generateCPDF<-function(somedf, plotfunc, target){
   for (i in colnames(somedf)){
     if (i != target){
       if (pfname == "geom_density"){
-        ggplot(somedf) + plotfunc(aes_string(x=i, group = target, color = target))
+        ggplot(somedf) + plotfunc(aes_string(x=i, group = target, fill= target), alpha = 0.8)
       } else {
         ggplot(somedf) + plotfunc(aes_string(x=i, group = target, fill = target), position = "dodge")
       }
@@ -70,7 +70,7 @@ generateCPDF<-function(somedf, plotfunc, target){
 generateCPDF(modfam2,geom_density, "EnjoyLife")
 generateCPDF(fam2, geom_histogram, "EnjoyLife")
 
-fitCPDF<- function(df, xname, yname, f){
+fitCPDF<- function(df, xname, yname, f, plotfunc, method){
   # Fitting Conditional pdf on top of histogram, and save that plot.
   #
   # Args: 
@@ -78,32 +78,70 @@ fitCPDF<- function(df, xname, yname, f){
   #   xname: target col name
   #   yname: condition col name
   #   f: string that indicated the density function put on top of the histogram
+  #   plotfunc: original data plot, geom_hitogram or geom_density
+  #   method: the character string coding for the fitting method
   #
   # Returns:
   #   Model conditional pdf
   dfname = deparse(substitute(df))
+  pfname = deparse(substitute(plotfunc))
   xcol <- df[[xname]]
   ycol <- df[[yname]]
   yrange = range(ycol)
   sf <- list()
   for (i in range(1,length(yrange))){
     condData <- xcol[ycol == yrange[i]]
-    params <- c(fitdist(condData, f)$estimate)
+    params <- c(fitdist(condData, f, method)$estimate)
     # This step is IMPORTANT
     dfunc = match.fun(paste('d', f, sep = ''))
-    sf[[i]] = stat_function(fun = dfunc, args = params)
+    sf[[i]] = stat_function(fun = dfunc, args = params, lty = "dashed")
   }
-  # It is important here that binwidth is 1, so the y is actually density!!!
- ggplot(df) + 
-   geom_histogram(aes_string(y="..density..", x=xname, group = yname, fill=yname), binwidth=1, position="dodge") + sf
+  if (pfname == "geom_histogram"){
+    # It is important here that binwidth is 1, so the y is actually density!!!
+    ggplot(df) + 
+    plotfunc(aes_string(y="..density..", x=xname, group = yname, fill=yname), binwidth=1, position="dodge") + 
+    sf
+  } else {
+    ggplot(df) + 
+    plotfunc(aes_string(x=xname, group = yname, group = yname, fill=yname), alpha = .8) + 
+    sf
+  }
  # Save plots
  fpath = paste("plots/",paste(dfname, "fitcpdf", xname,"on",yname, f, sep = "_"), ".pdf", sep="")
  ggsave(file = fpath)
 }
 
+
+# List of density functions
+densfunlist <- c("norm", "exp", "gamma", "nbinom", "geom", "beta", "logis", "nbinorm")
+# TODO??
+PickBestFit <- function(x, method){
+  # Fit the best density functions out of densfunlist
+  # Args:
+  #   x: a numeric vector
+  #   method: the character string coding for the fitting method
+  # Returns:
+  #   fitdistr obj with the best performance based on estimated standard error mean
+  errlist <- list()
+  for (f in densfunlist){
+    obj <- fitdist(x, f)
+    stderror <- obj$sd[1]
+    errlist[stderror] <- obj
+  }
+}
+
+
+###Examples
 # Plot Fitted Histogram for fam2 with 'norm' normal distribution
 for (cname in colnames(fam2)){
   if (cname != "EnjoyLife"){
-    fitCPDF(fam2, cname, "EnjoyLife", "norm")
+    fitCPDF(fam2, cname, "EnjoyLife", "norm", geom_histogram, "mle")
+  }
+}
+
+# Plot Fitted density for modfam2 with 'norm' normal distribution
+for (cname in colnames(modfam2)){
+  if (cname != "EnjoyLife"){
+    fitCPDF(modfam2, cname, "EnjoyLife", "gamma", geom_density, "mme")
   }
 }
