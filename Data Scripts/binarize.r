@@ -25,15 +25,26 @@ modfam2<-modfam2[,9:13]
 # get rid visitID
 fam2<-fam2[,-1]
 
-# plotting histogram given a dataframe and a target column, and a filename
-genhisto<-function(somedf, target, filename){
-  filepath = paste("plots/",filename, ".pdf",sep="")
-  ggplot(somedf) + geom_histogram(aes_string(x=target))
+gendist<-function(somedf, plotfunc, target, filename){
+  # Plotting distribution (histogram/density) given a dataframe and a target column, and a filename
+  # Args:
+  #    somdf: dataframe
+  #    plotfunc: geom_histogram or geom_density
+  #    target: target column
+  #    filename: filename given to the hitogram to generate
+  #
+  # Returns:
+  #   hitogram on target column
+  pfname = deparse(substitute(plotfunc))
+  filepath = paste("plots/",paste(filename, pfname, sep = "_"), ".pdf",sep="")
+  ggplot(somedf) + plotfunc(aes_string(x=target))
   # ggsave(file="plots/modfam2.pdf")
   ggsave(file=filepath)
 }
-genhisto(modfam2, "EnjoyLife", "modfam2")
-genhisto(fam2, "EnjoyLife", "fam2")
+gendist(modfam2, geom_histogram, "EnjoyLife", "modfam2")
+gendist(fam2, geom_histogram, "EnjoyLife", "fam2")
+gendist(fullTable3, geom_histogram, "ActualEDSS", "fullTable3")
+gendist(fullTable3, geom_density, "ActualEDSS", "fullTable3")
 
 # Binarize EnjoyLife
 # find the enjoy life median
