@@ -53,8 +53,8 @@ medianEL<- median(modfam2$EnjoyLife)
 modfam2$EnjoyLife<-ifelse(modfam2$EnjoyLife <= medianEL, 0, 1)
 fam2$EnjoyLife<-ifelse(fam2$EnjoyLife <= medianEL, 0, 1)
 # Plot PDF after binarize
-genhisto(modfam2, "EnjoyLife", "bin_modfam2")
-genhisto(fam2, "EnjoyLife", "bin_fam2")
+gendist(modfam2, geom_histogram,"EnjoyLife", "bin_modfam2")
+gendist(fam2, geom_histogram,"EnjoyLife", "bin_fam2")
 
 #save binarized fam2,modfam2, merged in HDF5 format
 h5createFile('data/predData.h5')
@@ -109,8 +109,9 @@ fitCPDF<- function(df, xname, yname, f, plotfunc, method){
   }
   if (pfname == "geom_histogram"){
     # It is important here that binwidth is 1, so the y is actually density!!!
+    bw = 0.01
     ggplot(df) + 
-    plotfunc(aes_string(y="..density..", x=xname, group = yname, fill=yname), binwidth=1, position="dodge") + 
+    plotfunc(aes_string(y="..density.. * bw", x=xname, group = yname, fill=yname), binwidth=bw, position="dodge") + 
     sf
   } else {
     ggplot(df) + 
@@ -153,6 +154,7 @@ for (cname in colnames(fam2)){
 # Plot Fitted density for modfam2 with 'norm' normal distribution
 for (cname in colnames(modfam2)){
   if (cname != "EnjoyLife"){
+    print(cname)
     fitCPDF(modfam2, cname, "EnjoyLife", "gamma", geom_density, "mme")
   }
 }
