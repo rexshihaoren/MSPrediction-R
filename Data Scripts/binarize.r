@@ -58,9 +58,9 @@ gendist(fam2, geom_histogram,"EnjoyLife", "bin_fam2")
 
 #save binarized fam2,modfam2, merged in HDF5 format
 h5createFile('data/predData.h5')
-h5write(fam2, "data/predData.h5","fam2")
-h5write(modfam2,"data/predData.h5","modfam2")
-h5write(merged, "data/predData.h5", "merged")
+# h5write(fam2, "data/predData.h5","fam2")
+# h5write(modfam2,"data/predData.h5","modfam2")
+# h5write(merged, "data/predData.h5", "merged")
 
 # Plot Conditional PDF 
 generateCPDF<-function(somedf, plotfunc, target){
@@ -109,9 +109,9 @@ fitCPDF<- function(df, xname, yname, f, plotfunc, method){
   }
   if (pfname == "geom_histogram"){
     # It is important here that binwidth is 1, so the y is actually density!!!
-    bw = 0.01
+#     bw <- 0.01
     ggplot(df) + 
-    plotfunc(aes_string(y="..density.. * bw", x=xname, group = yname, fill=yname), binwidth=bw, position="dodge") + 
+    plotfunc(aes_string(y="..density.. * 0.1", x=xname, group = yname, fill=yname), binwidth=0.1, position="dodge", width = 2) + 
     sf
   } else {
     ggplot(df) + 
