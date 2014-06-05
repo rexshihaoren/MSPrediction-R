@@ -11,16 +11,20 @@ load("step1/result.RData")
 # Merge fam2, modfam2, fullTable3
 
 #First change fam2 colname "VisitId" to "VisitID"
-colnames(fam2)[1] = "VisitID"
+# colnames(fam2)[1] <- "VisitID"
+# get rid of column "X" in modfam2
+modfam2 <- modfam2[-1]
+
+
 #merged = merge(fam2, modfam2, by = "VisitID", all.y = TRUE)
-merged = merge(fam2, modfam2)
-merged <- merge(merged, fullTable3)
+#merged <- merge(fam2, modfam2, by = "VisitID")
+#merged <- merge(merged, fullTable3, by = "VisitID")
 
 
+merged <- merge(fam2, modfam2, by="VisitId", by.y="VisitID")
+merged <- merge(merged, fullTable3, by="VisitId", by.y="VisitID")
 # only 5 cols, group1~3, relative-pain, enjoylife
-modfam2<-modfam2[,9:13]
-
-
+modfam2<-modfam2[,8:12]
 
 # get rid visitID
 fam2<-fam2[,-1]
@@ -47,7 +51,7 @@ DataProcessing <- function(df, target = ""){
     loc <- grep(target, colnames(df))
   }
   processing <- df
-  processing <- apply(processing, 2, function(x) (x-min(x))/max(x)-min(x))
+  processing <- apply(processing, 2, function(x) (x-min(x))/(max(x)-min(x)))
   processing[,-loc] <- apply(processing[,-loc], c(1,2), function(x) if (x == 0) x+1e-12 else x)
 
   as.data.frame(processing)
@@ -79,8 +83,8 @@ gendist<-function(somedf, plotfunc, target, filename){
   #   hitogram on target column
   pfname = deparse(substitute(plotfunc))
   filepath = paste("plots/",paste(filename, pfname, sep = "_"), ".pdf",sep="")
-  ggplot(somedf) + plotfunc(aes_string(x=target))
-  # ggsave(file="plots/modfam2.pdf")
+  somedf_noNA <- somedf[!is.na(somedf[target]),]
+  ggplot(somedf_noNA) + plotfunc(aes_string(x=target))
   ggsave(file=filepath)
 }
 
@@ -233,17 +237,20 @@ for (cname in colnames(fam2_bin)){
 
 
 ##################Calculate EDSS Rate###########
-fullTable3_ordered <- fullTable3[order(fullTable3$EPICID, fullTable3$ExamDate),]
+merged_updated <- merged[order(merged$EPICID, merged$ExamDate),]
 # Add Empty EDSSRate col
-fullTable3_ordered[, "EDSSRate"] <- NA
+merged_updated[, "EDSSRate"] <- NA
 
-nvisits <- nrow(fullTable3_ordered)
+nvisits <- nrow(merged_updated)
 for(i in 1:(nvisits-1)){
-  dEDSS <- fullTable3_ordered[i+1, "ActualEDSS"] - fullTable3_ordered[i, "ActualEDSS"]
-  dDay <- as.numeric(as.Date(fullTable3_ordered[i+1,]$ExamDate) - as.Date(fullTable3_ordered[i,]$ExamDate))
-  if (dDay > 0){
-    fullTable3_ordered[i+1, "EDSSRate"] <- dEDSS/dDay
+  dEDSS <- merged_updated[i+1, "ActualEDSS"] - merged_updated[i, "ActualEDSS"]
+  dDay <- as.numeric(as.Date(merged_updated[i+1,]$ExamDate) - as.Date(merged_updated[i,]$ExamDate))
+  dYear <- dDay/365
+  if (merged_updated[i+1, "EPICID"] == merged_updated[i, "EPICID"] ){
+    merged_updated[i+1, "EDSSRate"] <- dEDSS/dYear
   }
 }
 
-h5write(fullTable3_ordered, "data/predData.h5","fullTable3_ordered")
+h5write(merged_updated, "data/predData.h5","merged_updated")
+gendist(merged_updated, geom_histogram, "EDSSRate", "merged_updated")
+gendist(merged_updated, geom_density, "EDSSRate", "merged_updated")
