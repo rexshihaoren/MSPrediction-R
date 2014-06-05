@@ -229,3 +229,21 @@ for (cname in colnames(fam2_bin)){
     fitCPDF(fam2_bin, cname, "EnjoyLife", "nbinom", geom_histogram, "mme")
   }
 }
+
+
+
+##################Calculate EDSS Rate###########
+fullTable3_ordered <- fullTable3[order(fullTable3$EPICID, fullTable3$ExamDate),]
+# Add Empty EDSSRate col
+fullTable3_ordered[, "EDSSRate"] <- NA
+
+nvisits <- nrow(fullTable3_ordered)
+for(i in 1:(nvisits-1)){
+  dEDSS <- fullTable3_ordered[i+1, "ActualEDSS"] - fullTable3_ordered[i, "ActualEDSS"]
+  dDay <- as.numeric(as.Date(fullTable3_ordered[i+1,]$ExamDate) - as.Date(fullTable3_ordered[i,]$ExamDate))
+  if (dDay > 0){
+    fullTable3_ordered[i+1, "EDSSRate"] <- dEDSS/dDay
+  }
+}
+
+h5write(fullTable3_ordered, "data/predData.h5","fullTable3_ordered")
