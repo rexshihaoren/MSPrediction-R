@@ -60,14 +60,18 @@ modfam2_processing <- DataProcessing(modfam2_bin, "EnjoyLife")
 fam2_processing <- DataProcessing(fam2_bin, "EnjoyLife")
 
 #save fam2, modfam2, fam2_bin, modfam2_bin, modfam2_processing, fam2_processing, and  merged in HDF5 format
-h5createFile('data/predData.h5')
-h5write(fam2, "data/predData.h5","fam2")
-h5write(modfam2,"data/predData.h5","modfam2")
-h5write(merged, "data/predData.h5", "merged")
-h5write(fam2_bin, "data/predData.h5","fam2_bin")
-h5write(modfam2_bin, "data/predData.h5","modfam2_bin")
-h5write(modfam2_processing, "data/predData.h5","modfam2_processing")
-h5write(fam2_processing, "data/predData.h5","fam2_processing")
+filePath <- 'data/predData.h5'
+h5createFile(filePath)
+h5write(fam2, filePath,"fam2")
+h5write(modfam2,filePath,"modfam2")
+h5write(merged, filePath, "merged")
+h5write(fam2_bin, filePath,"fam2_bin")
+h5write(modfam2_bin, filePath,"modfam2_bin")
+h5write(modfam2_processing, filePath,"modfam2_processing")
+h5write(fam2_processing, filePath,"fam2_processing")
+
+filePathPython <- '../../MSPrediction-Python/data/'
+file.copy(filePath, filePathPython)
 
 
 
