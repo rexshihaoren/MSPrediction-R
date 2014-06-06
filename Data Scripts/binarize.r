@@ -255,6 +255,25 @@ for(i in 1:(nvisits-1)){
   }
 }
 
+### one more col in modified EDSSR, ignore abs dEDSSS <= 0.5; 2 class, increase or others
+merged_updated[, "ModEDSSR"] <- NA
+for(i in 1:(nvisits-1)){
+  dEDSS <- merged_updated[i+1, "ActualEDSS"] - merged_updated[i, "ActualEDSS"]
+  dDay <- as.numeric(as.Date(merged_updated[i+1,]$ExamDate) - as.Date(merged_updated[i,]$ExamDate))
+  dYear <- dDay/365
+  if (merged_updated[i+1, "EPICID"] == merged_updated[i, "EPICID"] ){
+    if (abs(dEDSS)<.5){
+      merged_updated[i+1, "ModEDSSR"] <- 0
+    } else {
+      merged_updated[i+1, "ModEDSSR"] <- 1
+    }
+  }
+}
+
 h5write(merged_updated, "data/predData.h5","merged_updated")
 gendist(merged_updated, geom_histogram, "EDSSRate", "merged_updated")
 gendist(merged_updated, geom_density, "EDSSRate", "merged_updated")
+gendist(merged_updated, geom_histogram, "ModEDSSR", "merged_updated")
+
+#########Treatment############
+DMT<-read.table("tableDMT.csv")
