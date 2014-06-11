@@ -11,18 +11,22 @@ load("step1/result.RData")
 # Merge fam2, modfam2, fullTable3
 
 #First change fam2 colname "VisitId" to "VisitID"
-# colnames(fam2)[1] <- "VisitID"
+colnames(fam2)[1] <- "VisitID"
 # get rid of column "X" in modfam2
 modfam2 <- modfam2[-1]
 
 
 #merged = merge(fam2, modfam2, by = "VisitID", all.y = TRUE)
+merged = merge(fam2, modfam2)
 #merged <- merge(fam2, modfam2, by = "VisitID")
 #merged <- merge(merged, fullTable3, by = "VisitID")
 
 
-merged <- merge(fam2, modfam2, by="VisitId", by.y="VisitID")
-merged <- merge(merged, fullTable3, by="VisitId", by.y="VisitID")
+#merged <- merge(fam2, modfam2, by="VisitId", by.y="VisitID")
+merged = merge(fam2, modfam2)
+#merged <- merge(fam2, modfam2, by="VisitID")
+merged <- merge(merged, fullTable3)
+#merged <- merge(merged, fullTable3, by="VisitId", by.y="VisitID")
 # only 5 cols, group1~3, relative-pain, enjoylife
 modfam2<-modfam2[,8:12]
 
