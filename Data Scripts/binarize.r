@@ -4,34 +4,27 @@ require(ggplot2)
 require(rhdf5)
 require(MASS)
 require(fitdistrplus)
+require(plyr)
 modfam2<-read.csv("step3/data_all.csv")
 # fetch original fam2
 load("step1/result.RData")
 
-# Merge fam2, modfam2, fullTable3
-
+####### Merge fam2, modfam2, fullTable3 ######
 #First change fam2 colname "VisitId" to "VisitID"
-colnames(fam2)[1] <- "VisitID"
-# get rid of column "X" in modfam2
-modfam2 <- modfam2[-1]
+fam2 <- rename(fam2, c("VisitId"="VisitID"))
+# colnames(fam2)[colnames(fam2) == "VisitId"] <- "VisitID"
 
-
-#merged = merge(fam2, modfam2, by = "VisitID", all.y = TRUE)
-merged = merge(fam2, modfam2)
-#merged <- merge(fam2, modfam2, by = "VisitID")
-#merged <- merge(merged, fullTable3, by = "VisitID")
-
-
-#merged <- merge(fam2, modfam2, by="VisitId", by.y="VisitID")
-merged = merge(fam2, modfam2)
-#merged <- merge(fam2, modfam2, by="VisitID")
+# For modfam2, get rid of column "X", and change "RelativePain" column to "modRelativePain" to avoid confusion when merging modfam2 and fam2 
+modfam2["X"] <- NULL
+modfam2 <- rename(modfam2, c("RelativePain" = "modRelativePain"))
+merged <- merge(fam2, modfam2)
 merged <- merge(merged, fullTable3)
-#merged <- merge(merged, fullTable3, by="VisitId", by.y="VisitID")
-# only 5 cols, group1~3, relative-pain, enjoylife
-modfam2<-modfam2[,8:12]
 
-# get rid visitID
-fam2<-fam2[,-1]
+
+# For modfam2, only preserve 5 cols for analytic purpose: group1~3, relative-pain, enjoylife
+modfam2<-modfam2[c("group1", "group2", "group3", "modRelativePain","EnjoyLife")]
+# For fam2, get rid of VisitID
+fam2["VisitID"]<- NULL
 
 
 Binarize <- function(df, target){
@@ -63,9 +56,14 @@ DataProcessing <- function(df, target = ""){
 modfam2_processing <- DataProcessing(modfam2_bin, "EnjoyLife")
 fam2_processing <- DataProcessing(fam2_bin, "EnjoyLife")
 
-#save fam2, modfam2, fam2_bin, modfam2_bin, modfam2_processing, fam2_processing, and  merged in HDF5 format
+# Save fam2, modfam2, fam2_bin, modfam2_bin, modfam2_processing, fam2_processing, and  merged in HDF5 format
 filePath <- 'data/predData.h5'
-h5createFile(filePath)
+f <- h5createFile(filePath)
+# If 'data/predData.h5' exists, overwrite it
+if (! f){
+  file.remove(filePath)
+  h5createFile(filePath)
+}
 h5write(fam2, filePath,"fam2")
 h5write(modfam2,filePath,"modfam2")
 h5write(merged, filePath, "merged")
@@ -73,11 +71,12 @@ h5write(fam2_bin, filePath,"fam2_bin")
 h5write(modfam2_bin, filePath,"modfam2_bin")
 h5write(modfam2_processing, filePath,"modfam2_processing")
 h5write(fam2_processing, filePath,"fam2_processing")
-
+# Copy predData.h5 to python folder
 filePathPython <- '../../MSPrediction-Python/data/'
 file.copy(filePath, filePathPython)
 
 
+###### Functions for Statistical Analysis
 
 gendist<-function(somedf, plotfunc, target, filename){
   # Plotting distribution (histogram/density) given a dataframe and a target column, and a filename
@@ -95,7 +94,6 @@ gendist<-function(somedf, plotfunc, target, filename){
   ggplot(somedf_noNA) + plotfunc(aes_string(x=target))
   ggsave(file=filepath)
 }
-
 
 
 generateCPDF<-function(somedf, plotfunc, target){
@@ -190,7 +188,8 @@ fitCPDF<- function(df, xname, yname, f, plotfunc, method, start = NULL){
 # }
 
 
-###Examples
+### Examples #########
+
 gendist(modfam2, geom_histogram, "EnjoyLife", "modfam2")
 gendist(fam2, geom_histogram, "EnjoyLife", "fam2")
 # Plot PDF after binarize
@@ -227,7 +226,6 @@ for (cname in colnames(modfam2_processing)){
 
 
 
-
 for (cname in colnames(fam2_bin)){
   if (cname != "EnjoyLife"){
     print(cname)
@@ -242,7 +240,8 @@ for (cname in colnames(fam2_bin)){
   }
 }
 
-
+#############################################################
+################# EDSS and Disgnostic ##################
 
 ##################Calculate EDSS Rate###########
 merged_updated <- merged[order(merged$EPICID, merged$ExamDate),]
@@ -259,7 +258,11 @@ for(i in 1:(nvisits-1)){
   }
 }
 
-### one more col in modified EDSSR, ignore abs dEDSSS <= 0.5; 2 class, increase or others
+
+######### Add one column 'ModEDSSR' (modified EDSSR)########
+
+#if ignore abs dEDSSS <= 0.5, or decrease = > Class 0; Otherwise => Class 1
+
 merged_updated[, "ModEDSSR"] <- NA
 for(i in 1:(nvisits-1)){
   dEDSS <- merged_updated[i+1, "ActualEDSS"] - merged_updated[i, "ActualEDSS"]
@@ -268,16 +271,31 @@ for(i in 1:(nvisits-1)){
   if (merged_updated[i+1, "EPICID"] == merged_updated[i, "EPICID"] ){
     if (abs(dEDSS)<.5){
       merged_updated[i+1, "ModEDSSR"] <- 0
+    } else if (dEDSS< 0){
+      merged_updated[i+1, "ModEDSSR"] <- 0
     } else {
       merged_updated[i+1, "ModEDSSR"] <- 1
     }
   }
 }
 
-h5write(merged_updated, "data/predData.h5","merged_updated")
+
+# DatePrep to use QOL(n) + EDSSRate(n-1) + EDSS(n-1) to predict ModEDSSR: Diagnostic #####
+diagnoColName = unique(c("EPICID", "ActualEDSS","EDSSRate", "ModEDSSR", colnames(fam2), colnames(modfam2)))
+diagno = merged_updated[diagnoColName] 
+
+# Save 'merged_updated' and 'diagno' 
+h5write(merged_updated, filePath,"merged_updated")
+h5write(diagno, filePath,"diagno")
+file.copy(filePath, filePathPython)
+
+
+# Some Ploting for merged_updated
 gendist(merged_updated, geom_histogram, "EDSSRate", "merged_updated")
 gendist(merged_updated, geom_density, "EDSSRate", "merged_updated")
 gendist(merged_updated, geom_histogram, "ModEDSSR", "merged_updated")
+
+
 
 #########Treatment############
 DMT<-read.table("tableDMT.csv")
