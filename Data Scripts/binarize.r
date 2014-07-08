@@ -261,7 +261,7 @@ for(i in 1:(nvisits-1)){
 
 ######### Add one column 'ModEDSSR' (modified EDSSR)########
 
-#if ignore abs dEDSSS <= 0.5, or decrease = > Class 0; Otherwise => Class 1
+#if ignore abs dEDSSS < 0.5, or decrease = > Class 0; Otherwise => Class 1
 
 merged_updated[, "ModEDSSR"] <- NA
 for(i in 1:(nvisits-1)){
