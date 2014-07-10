@@ -245,7 +245,7 @@ for (cname in colnames(fam2_bin)){
 
 ##################Calculate EDSS Rate###########
 merged_updated <- merged[order(merged$EPICID, merged$ExamDate),]
-# Add Empty EDSSRate col
+# Add Empty EDSSRate and Imprecision col 
 merged_updated[, "EDSSRate"] <- NA
 
 nvisits <- nrow(merged_updated)
@@ -259,29 +259,35 @@ for(i in 1:(nvisits-1)){
 }
 
 
-######### Add one column 'ModEDSSR' (modified EDSSR)########
+######### Add one column 'ModEDSS' (modified EDSS), denoting whether EDSS increased ########
 
 #if ignore abs dEDSSS < 0.5, or decrease = > Class 0; Otherwise => Class 1
+# Add Imprecision col 
+merged_updated[, "Imprecision"] <- NA
 
-merged_updated[, "ModEDSSR"] <- NA
+merged_updated[, "ModEDSS"] <- NA
 for(i in 1:(nvisits-1)){
   dEDSS <- merged_updated[i+1, "ActualEDSS"] - merged_updated[i, "ActualEDSS"]
   dDay <- as.numeric(as.Date(merged_updated[i+1,]$ExamDate) - as.Date(merged_updated[i,]$ExamDate))
   dYear <- dDay/365
   if (merged_updated[i+1, "EPICID"] == merged_updated[i, "EPICID"] ){
     if (abs(dEDSS)<.5){
-      merged_updated[i+1, "ModEDSSR"] <- 0
-    } else if (dEDSS< 0){
-      merged_updated[i+1, "ModEDSSR"] <- 0
+      merged_updated[i+1, "Imprecision"] <- 1
+      merged_updated[i+1, "ModEDSS"] <- 0
     } else {
-      merged_updated[i+1, "ModEDSSR"] <- 1
+      merged_updated[i+1, "Imprecision"] <- 0
+      if (dEDSS< 0){
+        merged_updated[i+1, "ModEDSS"] <- 0
+      } else {
+        merged_updated[i+1, "ModEDSS"] <- 1
+      }
     }
   }
 }
 
 
-# DatePrep to use QOL(n) + EDSSRate(n-1) + EDSS(n-1) to predict ModEDSSR: Diagnostic #####
-diagnoColName = unique(c("EPICID", "ActualEDSS","EDSSRate", "ModEDSSR", colnames(fam2), colnames(modfam2)))
+# DatePrep to use QOL(n) + EDSSRate(n-1) + EDSS(n-1) to predict ModEDSS: Diagnostic, n is exam date #####
+diagnoColName = unique(c("EPICID", "ActualEDSS","EDSSRate", "ModEDSS", "ExamDate", "Imprecision", colnames(fam2), colnames(modfam2)))
 diagno = merged_updated[diagnoColName] 
 
 # Save 'merged_updated' and 'diagno' 
@@ -293,7 +299,7 @@ file.copy(filePath, filePathPython)
 # Some Ploting for merged_updated
 gendist(merged_updated, geom_histogram, "EDSSRate", "merged_updated")
 gendist(merged_updated, geom_density, "EDSSRate", "merged_updated")
-gendist(merged_updated, geom_histogram, "ModEDSSR", "merged_updated")
+gendist(merged_updated, geom_histogram, "ModEDSS", "merged_updated")
 
 
 
