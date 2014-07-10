@@ -243,10 +243,11 @@ for (cname in colnames(fam2_bin)){
 #############################################################
 ################# EDSS and Disgnostic ##################
 
-##################Calculate EDSS Rate###########
+##################Calculate EDSS Rate + PrevEDSS col###########
 merged_updated <- merged[order(merged$EPICID, merged$ExamDate),]
-# Add Empty EDSSRate and Imprecision col 
+# Add Empty EDSSRate and PrevEDSS col 
 merged_updated[, "EDSSRate"] <- NA
+merged_updated[, "PrevEDSS"] <- NA
 
 nvisits <- nrow(merged_updated)
 for(i in 1:(nvisits-1)){
@@ -255,6 +256,7 @@ for(i in 1:(nvisits-1)){
   dYear <- dDay/365
   if (merged_updated[i+1, "EPICID"] == merged_updated[i, "EPICID"] ){
     merged_updated[i+1, "EDSSRate"] <- dEDSS/dYear
+    merged_updated[i+1, "PrevEDSS"] <- merged_updated[i, "ActualEDSS"]
   }
 }
 
@@ -287,7 +289,7 @@ for(i in 1:(nvisits-1)){
 
 
 # DatePrep to use QOL(n) + EDSSRate(n-1) + EDSS(n-1) to predict ModEDSS: Diagnostic, n is exam date #####
-diagnoColName = unique(c("EPICID", "ActualEDSS","EDSSRate", "ModEDSS", "ExamDate", "Imprecision", colnames(fam2), colnames(modfam2)))
+diagnoColName = unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS","EDSSRate", "ModEDSS", "Imprecision", colnames(fam2), colnames(modfam2)))
 diagno = merged_updated[diagnoColName] 
 
 # Save 'merged_updated' and 'diagno' 
