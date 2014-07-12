@@ -243,11 +243,12 @@ for (cname in colnames(fam2_bin)){
 #############################################################
 ################# EDSS and Disgnostic ##################
 
-##################Calculate EDSS Rate + PrevEDSS col###########
+##################Calculate EDSS Rate + PrevEDSS + PrevEDSSRate cols###########
 merged_updated <- merged[order(merged$EPICID, merged$ExamDate),]
 # Add Empty EDSSRate and PrevEDSS col 
 merged_updated[, "EDSSRate"] <- NA
 merged_updated[, "PrevEDSS"] <- NA
+merged_updated[, "PrevEDSSRate"] <- NA
 
 nvisits <- nrow(merged_updated)
 for(i in 1:(nvisits-1)){
@@ -257,6 +258,7 @@ for(i in 1:(nvisits-1)){
   if (merged_updated[i+1, "EPICID"] == merged_updated[i, "EPICID"] ){
     merged_updated[i+1, "EDSSRate"] <- dEDSS/dYear
     merged_updated[i+1, "PrevEDSS"] <- merged_updated[i, "ActualEDSS"]
+    merged_updated[i+1, "PrevEDSSRate"] <- merged_updated[i, "EDSSRate"]
   }
 }
 
@@ -273,7 +275,7 @@ for(i in 1:(nvisits-1)){
   dDay <- as.numeric(as.Date(merged_updated[i+1,]$ExamDate) - as.Date(merged_updated[i,]$ExamDate))
   dYear <- dDay/365
   if (merged_updated[i+1, "EPICID"] == merged_updated[i, "EPICID"] ){
-    if (abs(dEDSS)<.5){
+    if (abs(dEDSS) <= .5){
       merged_updated[i+1, "Imprecision"] <- 1
       merged_updated[i+1, "ModEDSS"] <- 0
     } else {
@@ -288,13 +290,41 @@ for(i in 1:(nvisits-1)){
 }
 
 
-# DatePrep to use QOL(n) + EDSSRate(n-1) + EDSS(n-1) to predict ModEDSS: Diagnostic, n is exam date #####
-diagnoColName = unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS","EDSSRate", "ModEDSS", "Imprecision", colnames(fam2), colnames(modfam2)))
-diagno = merged_updated[diagnoColName] 
+# DatePrep to use QOL(n) + EDSSRate(n-1) + EDSS(n-1) to predict ModEDSS: Diagnostic, n is exam date #
+diagnoColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", colnames(fam2), colnames(modfam2)))
+diagno <- merged_updated[diagnoColName] 
+
+#### Question:  Inclusion of mofam2/fam2 in training data & speed tradeoff #####
+
+# Provide alternatives: if for every patient, we do tranformation from fam2 to modfam2, then we only include modfam2 in traning
+
+diagnoeffColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", colnames(modfam2)))
+diagnoeff <- merged_updated[diagnoeffColName] 
+
+### In real life, we wouldn't know ActualEDSS or EDSSRate, we only know PrevEDSSRate, PrevEDSS
+# diagno and diagnoeff w/ date
+diagnostatic <- diagno
+diagnostatic['ExamDate'] <- NULL
+diagnostatic['ActualEDSS'] <- NULL
+diagnostatic['EDSSRate'] <- NULL
+diagnoeffstatic <- diagnoeff
+diagnoeffstatic['ExamDate'] <- NULL
+diagnoeffstatic['ActualEDSS'] <- NULL
+diagnoeffstatic['EDSSRate'] <- NULL
+
+### For diagnoeffstatic, the dataset primarily used in this analysis, we remove patient's initial visit, because for now we can't predict without PrevEDSS;
+diagnoeffstatic<-diagnoeffstatic[- which( is.na(diagnoeffstatic['PrevEDSS'])),]
+
+### For the patient record with PrevEDSSRate NA, we assume it's 0;
+diagnoeffstatic['PrevEDSSRate'][is.na(diagnoeffstatic['PrevEDSSRate']),] <- 0
+
 
 # Save 'merged_updated' and 'diagno' 
 h5write(merged_updated, filePath,"merged_updated")
 h5write(diagno, filePath,"diagno")
+h5write(diagnostatic, filePath,"diagnostatic")
+h5write(diagnoeff, filePath,"diagnoeff")
+h5write(diagnoeffstatic, filePath,"diagnoeffstatic")
 file.copy(filePath, filePathPython)
 
 
@@ -303,7 +333,11 @@ gendist(merged_updated, geom_histogram, "EDSSRate", "merged_updated")
 gendist(merged_updated, geom_density, "EDSSRate", "merged_updated")
 gendist(merged_updated, geom_histogram, "ModEDSS", "merged_updated")
 
-
+# Some plotting for diagnostatic and diagnoefstatic
+generateCPDF(diagnostatic, geom_histogram, "ModEDSS")
+generateCPDF(diagnoeffstatic, geom_histogram, "ModEDSS")
+generateCPDF(diagnostatic, geom_density, "ModEDSS")
+generateCPDF(diagnoeffstatic, geom_density, "ModEDSS")
 
 #########Treatment############
 DMT<-read.table("tableDMT.csv")
