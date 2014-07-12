@@ -73,7 +73,7 @@ h5write(modfam2_processing, filePath,"modfam2_processing")
 h5write(fam2_processing, filePath,"fam2_processing")
 # Copy predData.h5 to python folder
 filePathPython <- '../../MSPrediction-Python/data/'
-file.copy(filePath, filePathPython)
+file.copy(filePath, filePathPython, overwrite = TRUE)
 
 
 ###### Functions for Statistical Analysis
@@ -301,16 +301,18 @@ diagno <- merged_updated[diagnoColName]
 diagnoeffColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", colnames(modfam2)))
 diagnoeff <- merged_updated[diagnoeffColName] 
 
-### In real life, we wouldn't know ActualEDSS or EDSSRate, we only know PrevEDSSRate, PrevEDSS
+### In real life, without the Physician, we wouldn't know ActualEDSS (therefore Imprecision) or EDSSRate, we only know PrevEDSSRate, PrevEDSS
 # diagno and diagnoeff w/ date
 diagnostatic <- diagno
 diagnostatic['ExamDate'] <- NULL
 diagnostatic['ActualEDSS'] <- NULL
 diagnostatic['EDSSRate'] <- NULL
+diagnostatic['Imprecision'] <- NULL
 diagnoeffstatic <- diagnoeff
 diagnoeffstatic['ExamDate'] <- NULL
 diagnoeffstatic['ActualEDSS'] <- NULL
 diagnoeffstatic['EDSSRate'] <- NULL
+diagnoeffstatic['Imprecision'] <- NULL
 
 ### For diagnoeffstatic, the dataset primarily used in this analysis, we remove patient's initial visit, because for now we can't predict without PrevEDSS;
 diagnoeffstatic<-diagnoeffstatic[- which( is.na(diagnoeffstatic['PrevEDSS'])),]
@@ -325,7 +327,7 @@ h5write(diagno, filePath,"diagno")
 h5write(diagnostatic, filePath,"diagnostatic")
 h5write(diagnoeff, filePath,"diagnoeff")
 h5write(diagnoeffstatic, filePath,"diagnoeffstatic")
-file.copy(filePath, filePathPython)
+file.copy(filePath, filePathPython, overwrite = TRUE)
 
 
 # Some Ploting for merged_updated
