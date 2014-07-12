@@ -262,7 +262,6 @@ for(i in 1:(nvisits-1)){
   }
 }
 
-
 ######### Add one column 'ModEDSS' (modified EDSS), denoting whether EDSS increased ########
 
 #if ignore abs dEDSSS < 0.5, or decrease = > Class 0; Otherwise => Class 1
@@ -340,6 +339,34 @@ generateCPDF(diagnostatic, geom_histogram, "ModEDSS")
 generateCPDF(diagnoeffstatic, geom_histogram, "ModEDSS")
 generateCPDF(diagnostatic, geom_density, "ModEDSS")
 generateCPDF(diagnoeffstatic, geom_density, "ModEDSS")
+
+### Testing add column rate of everything ####
+
+calcRate<-function(df, colName, tColName, index){
+  # Add a rate column of a target column within index, an identity
+  #
+  # Args: 
+  #   df: dataset
+  #   colName: target col name
+  #   tColName: time col name
+  #   index: id col name
+  #
+  # Returns:
+  #   
+  nvisits <- nrow(df)
+  newColName <- paste(colName, "Rate", sep = "") 
+  df[,newColName] <- NA
+  for(i in 1:(nvisits-1)){
+    dDiff <- df[i+1, colName] - df[i, colName]
+    dDay <- as.numeric(as.Date(df[i+1,tColName]) - as.Date(df[i,tColName]))
+    dYear <- dDay/365
+    if (df[i+1, index] == df[i, index] ){
+      df[i+1, newColName] <- dDiff/dYear
+    }
+  }
+  newdf <- df
+  return(newdf)
+}
 
 #########Treatment############
 DMT<-read.table("tableDMT.csv")
