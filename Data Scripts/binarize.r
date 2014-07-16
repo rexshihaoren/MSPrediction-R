@@ -245,10 +245,17 @@ for (cname in colnames(fam2_bin)){
 
 ##################Calculate EDSS Rate + PrevEDSS + PrevEDSSRate cols###########
 merged_updated <- merged[order(merged$EPICID, merged$ExamDate),]
-# Add Empty EDSSRate and PrevEDSS col 
+##Treatment##
+# DMT described all the treatment
+DMT<-read.table("tableDMT.csv")
+#DMTex <-DMT[,c("VisitID","START", "END", "TreatmentID")]
+# List of all VisitIDs
+DMTVisitIDs <- unique(DMT[["VisitID"]])
+# Add Empty EDSSRate, PrevEDSS, PrevEDSSRate, RecTreatment
 merged_updated[, "EDSSRate"] <- NA
 merged_updated[, "PrevEDSS"] <- NA
 merged_updated[, "PrevEDSSRate"] <- NA
+merged_updated[, "RecTreatment"] <- NA
 
 nvisits <- nrow(merged_updated)
 for(i in 1:(nvisits-1)){
@@ -259,7 +266,9 @@ for(i in 1:(nvisits-1)){
     merged_updated[i+1, "EDSSRate"] <- dEDSS/dYear
     merged_updated[i+1, "PrevEDSS"] <- merged_updated[i, "ActualEDSS"]
     merged_updated[i+1, "PrevEDSSRate"] <- merged_updated[i, "EDSSRate"]
+  
   }
+  merged_updated[i, "RecTreatment"] <- merged_updated[i, "VisitID"] %in% DMTVisitIDs
 }
 
 ######### Add one column 'ModEDSS' (modified EDSS), denoting whether EDSS increased ########
@@ -290,14 +299,14 @@ for(i in 1:(nvisits-1)){
 
 
 # DatePrep to use QOL(n) + EDSSRate(n-1) + EDSS(n-1) to predict ModEDSS: Diagnostic, n is exam date #
-diagnoColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", colnames(fam2), colnames(modfam2)))
+diagnoColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", "RecTreatment", colnames(fam2), colnames(modfam2)))
 diagno <- merged_updated[diagnoColName] 
 
 #### Question:  Inclusion of mofam2/fam2 in training data & speed tradeoff #####
 
 # Provide alternatives: if for every patient, we do tranformation from fam2 to modfam2, then we only include modfam2 in traning
 
-diagnoeffColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", colnames(modfam2)))
+diagnoeffColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", "RecTreatment", colnames(modfam2)))
 diagnoeff <- merged_updated[diagnoeffColName] 
 
 ### In real life, without the Physician, we wouldn't know ActualEDSS (therefore Imprecision) or EDSSRate, we only know PrevEDSSRate, PrevEDSS
@@ -368,5 +377,3 @@ calcRate<-function(df, colName, tColName, index){
   return(newdf)
 }
 
-#########Treatment############
-DMT<-read.table("tableDMT.csv")
