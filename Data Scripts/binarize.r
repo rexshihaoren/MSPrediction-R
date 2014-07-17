@@ -299,7 +299,7 @@ for(i in 1:(nvisits-1)){
 
 
 # DatePrep to use QOL(n) + EDSSRate(n-1) + EDSS(n-1) to predict ModEDSS: Diagnostic, n is exam date #
-diagnoColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", "RecTreatment", colnames(fam2), colnames(modfam2)))
+diagnoColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", "RecTreatment", colnames(fam2)))
 diagno <- merged_updated[diagnoColName] 
 
 #### Question:  Inclusion of mofam2/fam2 in training data & speed tradeoff #####
@@ -323,18 +323,6 @@ diagnoeffstatic<-diagnoeffstatic[- which( is.na(diagnoeffstatic['PrevEDSS'])),]
 
 ### For the patient record with PrevEDSSRate NA, we assume it's 0;
 diagnoeffstatic['PrevEDSSRate'][is.na(diagnoeffstatic['PrevEDSSRate']),] <- 0
-
-
-# Some Ploting for merged_updated
-gendist(merged_updated, geom_histogram, "EDSSRate", "merged_updated")
-gendist(merged_updated, geom_density, "EDSSRate", "merged_updated")
-gendist(merged_updated, geom_histogram, "ModEDSS", "merged_updated")
-
-# Some plotting for diagnostatic and diagnoefstatic
-generateCPDF(diagnostatic, geom_histogram, "ModEDSS")
-generateCPDF(diagnoeffstatic, geom_histogram, "ModEDSS")
-generateCPDF(diagnostatic, geom_density, "ModEDSS")
-generateCPDF(diagnoeffstatic, geom_density, "ModEDSS")
 
 ### Testing add column rate of everything ####
 
@@ -377,7 +365,23 @@ diagnorateeffstatic <- diagnorate
 diagnorateeffstatic <- diagnorateeffstatic[,!(names(diagnorateeffstatic) %in% drop)]
 diagnorateeffstatic <- diagnorateeffstatic[,!(names(diagnorateeffstatic) %in% targetColList)]
 
-# h5 save
+###### h5 save #######
+filePath <- 'data/predData.h5'
+# Copy predData.h5 to python folder
+filePathPython <- '../../MSPrediction-Python/data/'
+f <- h5createFile(filePath)
+# If 'data/predData.h5' exists, overwrite it
+if (! f){
+  file.remove(filePath)
+  h5createFile(filePath)
+}
+h5write(fam2, filePath,"fam2")
+h5write(modfam2,filePath,"modfam2")
+h5write(merged, filePath, "merged")
+h5write(fam2_bin, filePath,"fam2_bin")
+h5write(modfam2_bin, filePath,"modfam2_bin")
+h5write(modfam2_processing, filePath,"modfam2_processing")
+h5write(fam2_processing, filePath,"fam2_processing")
 h5write(diagnorateeffstatic, filePath,"diagnorateeffstatic")
 h5write(merged_updated, filePath,"merged_updated")
 h5write(diagno, filePath,"diagno")
@@ -385,4 +389,19 @@ h5write(diagnostatic, filePath,"diagnostatic")
 h5write(diagnoeff, filePath,"diagnoeff")
 h5write(diagnoeffstatic, filePath,"diagnoeffstatic")
 file.copy(filePath, filePathPython, overwrite = TRUE)
-file.copy(filePath, filePathPython, overwrite = TRUE)
+
+# same for diagnostatic
+diagnostatic<-diagnostatic[- which( is.na(diagnostatic['PrevEDSS'])),]
+diagnostatic['PrevEDSSRate'][is.na(diagnostatic['PrevEDSSRate']),] <- 0
+
+
+# Some Ploting for merged_updated
+gendist(merged_updated, geom_histogram, "EDSSRate", "merged_updated")
+gendist(merged_updated, geom_density, "EDSSRate", "merged_updated")
+gendist(merged_updated, geom_histogram, "ModEDSS", "merged_updated")
+
+# Some plotting for diagnostatic and diagnoefstatic
+generateCPDF(diagnostatic, geom_histogram, "ModEDSS")
+generateCPDF(diagnoeffstatic, geom_histogram, "ModEDSS")
+generateCPDF(diagnostatic, geom_density, "ModEDSS")
+generateCPDF(diagnoeffstatic, geom_density, "ModEDSS")
