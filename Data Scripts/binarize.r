@@ -311,31 +311,18 @@ diagnoeff <- merged_updated[diagnoeffColName]
 
 ### In real life, without the Physician, we wouldn't know ActualEDSS (therefore Imprecision) or EDSSRate, we only know PrevEDSSRate, PrevEDSS
 # diagno and diagnoeff w/ date
+# EPICID is useless for static prediction as well
+drop <- c('EPICID', 'ExamDate', 'ActualEDSS','EDSSRate', 'Imprecision')
 diagnostatic <- diagno
-diagnostatic['ExamDate'] <- NULL
-diagnostatic['ActualEDSS'] <- NULL
-diagnostatic['EDSSRate'] <- NULL
-diagnostatic['Imprecision'] <- NULL
+diagnostatic <- diagnostatic[,!(names(diagnostatic) %in% drop)]
 diagnoeffstatic <- diagnoeff
-diagnoeffstatic['ExamDate'] <- NULL
-diagnoeffstatic['ActualEDSS'] <- NULL
-diagnoeffstatic['EDSSRate'] <- NULL
-diagnoeffstatic['Imprecision'] <- NULL
+diagnoeffstatic <- diagnoeffstatic[,!(names(diagnoeffstatic) %in% drop)]
 
 ### For diagnoeffstatic, the dataset primarily used in this analysis, we remove patient's initial visit, because for now we can't predict without PrevEDSS;
 diagnoeffstatic<-diagnoeffstatic[- which( is.na(diagnoeffstatic['PrevEDSS'])),]
 
 ### For the patient record with PrevEDSSRate NA, we assume it's 0;
 diagnoeffstatic['PrevEDSSRate'][is.na(diagnoeffstatic['PrevEDSSRate']),] <- 0
-
-
-# Save 'merged_updated' and 'diagno' 
-h5write(merged_updated, filePath,"merged_updated")
-h5write(diagno, filePath,"diagno")
-h5write(diagnostatic, filePath,"diagnostatic")
-h5write(diagnoeff, filePath,"diagnoeff")
-h5write(diagnoeffstatic, filePath,"diagnoeffstatic")
-file.copy(filePath, filePathPython, overwrite = TRUE)
 
 
 # Some Ploting for merged_updated
@@ -377,3 +364,29 @@ calcRate<-function(df, colName, tColName, index){
   return(newdf)
 }
 
+
+targetColList <- c("group1","group2", "group3","modRelativePain", "EnjoyLife" )
+diagnorate <- diagnoeff
+for (col in targetColList){
+  diagnorate <- calcRate(diagnorate, col, "ExamDate", "EPICID")
+}
+diagnorate<-diagnorate[- which( is.na(diagnorate['PrevEDSS'])),]
+diagnorate['PrevEDSSRate'][is.na(diagnorate['PrevEDSSRate']),] <- 0
+diagnorateeffstatic <- diagnorate
+diagnorateeffstatic['ExamDate'] <- NULL
+diagnorateeffstatic['ActualEDSS'] <- NULL
+diagnorateeffstatic['EDSSRate'] <- NULL
+diagnorateeffstatic['Imprecision'] <- NULL
+# EPICID is useless here for static prediction
+diagnorateeffstatic['EPICID'] <- NULL
+diagnorateeffstatic <- diagnorateeffstatic[,!(names(diagnorateeffstatic) %in% targetColList)]
+
+# h5 save
+h5write(diagnorateeffstatic, filePath,"diagnorateeffstatic")
+h5write(merged_updated, filePath,"merged_updated")
+h5write(diagno, filePath,"diagno")
+h5write(diagnostatic, filePath,"diagnostatic")
+h5write(diagnoeff, filePath,"diagnoeff")
+h5write(diagnoeffstatic, filePath,"diagnoeffstatic")
+file.copy(filePath, filePathPython, overwrite = TRUE)
+file.copy(filePath, filePathPython, overwrite = TRUE)
