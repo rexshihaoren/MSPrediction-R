@@ -373,12 +373,8 @@ for (col in targetColList){
 diagnorate<-diagnorate[- which( is.na(diagnorate['PrevEDSS'])),]
 diagnorate['PrevEDSSRate'][is.na(diagnorate['PrevEDSSRate']),] <- 0
 diagnorateeffstatic <- diagnorate
-diagnorateeffstatic['ExamDate'] <- NULL
-diagnorateeffstatic['ActualEDSS'] <- NULL
-diagnorateeffstatic['EDSSRate'] <- NULL
-diagnorateeffstatic['Imprecision'] <- NULL
-# EPICID is useless here for static prediction
-diagnorateeffstatic['EPICID'] <- NULL
+
+diagnorateeffstatic <- diagnorateeffstatic[,!(names(diagnorateeffstatic) %in% drop)]
 diagnorateeffstatic <- diagnorateeffstatic[,!(names(diagnorateeffstatic) %in% targetColList)]
 
 # h5 save
