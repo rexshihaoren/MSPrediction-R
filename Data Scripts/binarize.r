@@ -365,6 +365,14 @@ diagnorateeffstatic <- diagnorate
 diagnorateeffstatic <- diagnorateeffstatic[,!(names(diagnorateeffstatic) %in% drop)]
 diagnorateeffstatic <- diagnorateeffstatic[,!(names(diagnorateeffstatic) %in% targetColList)]
 
+# same for diagnostatic
+diagnostatic<-diagnostatic[- which( is.na(diagnostatic['PrevEDSS'])),]
+diagnostatic['PrevEDSSRate'][is.na(diagnostatic['PrevEDSSRate']),] <- 0
+
+get <- c('PrevEDSS','ModEDSS','PrevEDSSRate')
+diagnotryget <- diagnostatic[get]
+
+
 ###### h5 save #######
 filePath <- 'data/predData.h5'
 # Copy predData.h5 to python folder
@@ -388,11 +396,8 @@ h5write(diagno, filePath,"diagno")
 h5write(diagnostatic, filePath,"diagnostatic")
 h5write(diagnoeff, filePath,"diagnoeff")
 h5write(diagnoeffstatic, filePath,"diagnoeffstatic")
+h5write(diagnotryget, filePath,"diagnotryget")
 file.copy(filePath, filePathPython, overwrite = TRUE)
-
-# same for diagnostatic
-diagnostatic<-diagnostatic[- which( is.na(diagnostatic['PrevEDSS'])),]
-diagnostatic['PrevEDSSRate'][is.na(diagnostatic['PrevEDSSRate']),] <- 0
 
 
 # Some Ploting for merged_updated
