@@ -16,7 +16,7 @@ DMT<-read.table("tableDMT.csv")
 #DMTex <-DMT[,c("VisitID","START", "END", "TreatmentID")]
 # List of all VisitIDs
 DMTVisitIDs <- unique(DMT[["VisitID"]])
-# Add Empty EDSSRate, PrevEDSS, PrevEDSSRate, RecTreatment
+# Add Empty EDSSRate, PrevEDSS, PrevEDSSRate, RecTreatment (Recieved treatment)
 merged_updated[, "EDSSRate"] <- NA
 merged_updated[, "PrevEDSS"] <- NA
 merged_updated[, "PrevEDSSRate"] <- NA
@@ -63,60 +63,65 @@ for(i in 1:(nvisits-1)){
 }
 
 # DatePrep to use QOL(n) + EDSSRate(n-1) + EDSS(n-1) to predict ModEDSS: Diagnostic, n is exam date #
-diagnoColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", "RecTreatment", colnames(fam2)))
+diagnoColName <- unique(c("VisitID","EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", "RecTreatment", colnames(fam2)))
 diagno <- merged_updated[diagnoColName] 
 
 #### Question:  Inclusion of mofam2/fam2 in training data & speed tradeoff #####
 
 # Provide alternatives: if for every patient, we do tranformation from fam2 to modfam2, then we only include modfam2 in traning
 
-diagnoeffColName <- unique(c("EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", "RecTreatment", colnames(modfam2)))
-diagnoeff <- merged_updated[diagnoeffColName] 
+diagnomodColName <- unique(c("VisitID","EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", "RecTreatment", colnames(modfam2)))
+diagnomod <- merged_updated[diagnomodColName]
 
 ### In real life, without the Physician, we wouldn't know ActualEDSS (therefore Imprecision) or EDSSRate, we only know PrevEDSSRate, PrevEDSS
-# diagno and diagnoeff w/ date
-# EPICID is useless for static prediction as well
-drop <- c('EPICID', 'ExamDate', 'ActualEDSS','EDSSRate', 'Imprecision')
-diagnostatic <- diagno
-diagnostatic <- diagnostatic[,!(names(diagnostatic) %in% drop)]
-diagnoeffstatic <- diagnoeff
-diagnoeffstatic <- diagnoeffstatic[,!(names(diagnoeffstatic) %in% drop)]
+# EPICID is useless for prediction as well
+drop <- c('ActualEDSS','EDSSRate', 'Imprecision')
+diagno <- diagno[,!(names(diagno) %in% drop)]
+diagnomod <- diagnomod[,!(names(diagnomod) %in% drop)]
 
-### For diagnoeffstatic, the dataset primarily used in this analysis, we remove patient's initial visit, because for now we can't predict without PrevEDSS;
-diagnoeffstatic<-diagnoeffstatic[- which( is.na(diagnoeffstatic['PrevEDSS'])),]
-
-### For the patient record with PrevEDSSRate NA, we assume it's 0;
-diagnoeffstatic['PrevEDSSRate'][is.na(diagnoeffstatic['PrevEDSSRate']),] <- 0
-
+#### For diagnomod, try calculate rate for everything in the targetColList
 targetColList <- c("group1","group2", "group3","modRelativePain", "EnjoyLife" )
-diagnorate <- diagnoeff
+diagnomodrate <- diagnomod
 for (col in targetColList){
-  diagnorate <- calcRate(diagnorate, col, "ExamDate", "EPICID")
+  diagnomodrate <- calcRate(diagnomodrate, col, "ExamDate", "EPICID")
 }
-diagnorate<-diagnorate[- which( is.na(diagnorate['PrevEDSS'])),]
-diagnorate['PrevEDSSRate'][is.na(diagnorate['PrevEDSSRate']),] <- 0
-diagnorateeffstatic <- diagnorate
 
-diagnorateeffstatic <- diagnorateeffstatic[,!(names(diagnorateeffstatic) %in% drop)]
-diagnorateeffstatic <- diagnorateeffstatic[,!(names(diagnorateeffstatic) %in% targetColList)]
+### For diagnomod, we remove patient's initial visit, because for now we can't predict without PrevEDSS;For the patient record with PrevEDSSRate NA, we assume it's 0;
+diagnomod<-diagnomod[- which( is.na(diagnomod['PrevEDSS'])),]
+diagnomod['PrevEDSSRate'][is.na(diagnomod['PrevEDSSRate']),] <- 0
+# same for diagno with fam2 only
+diagno<-diagno[- which( is.na(diagno['PrevEDSS'])),]
+diagno['PrevEDSSRate'][is.na(diagno['PrevEDSSRate']),] <- 0
 
-# same for diagnostatic
-diagnostatic<-diagnostatic[- which( is.na(diagnostatic['PrevEDSS'])),]
-diagnostatic['PrevEDSSRate'][is.na(diagnostatic['PrevEDSSRate']),] <- 0
+### For diagnorate, we remove patient's initial visit, because for now we can't predict without PrevEDSS;For the patient record with PrevEDSSRate NA, we assume it's 0;
+diagnomodrate<-diagnomodrate[- which( is.na(diagnomodrate['PrevEDSS'])),]
+diagnomodrate['PrevEDSSRate'][is.na(diagnomodrate['PrevEDSSRate']),] <- 0
 
+
+
+# seperate those with VisitID and ExamDate and those without
+diagnoidd <- diagno
+diagno <-diagno[, !(names(diagno)%in%c("ExamDate","VisitID", "EPICID"))]
+diagnomodidd <- diagnomod
+diagnomod <-diagnomod[, !(names(diagnomod)%in%c("ExamDate","VisitID", "EPICID"))]
+diagnomodrateidd <- diagnomodrate
+diagnomodrate <-diagnomodrate[, !(names(diagnomodrate)%in%c("ExamDate","VisitID", "EPICID"))]
+
+# Simplified version with only 'PrevEDSS','ModEDSS','PrevEDSSRate'
 get <- c('PrevEDSS','ModEDSS','PrevEDSSRate')
-diagnotryget <- diagnostatic[get]
+diagnosim <- diagno[get]
 
 ##### save to diagno.RData ###
-save(merged_updated, diagno, diagnostatic, diagnorateeffstatic, diagnoeff, diagnotryget, diagnoeffstatic, file=diagnoPath)
+save(merged_updated, diagno, diagnoidd, diagnomod, diagnomodidd, diagnomodrate, diagnomodrateidd, diagnosim, file=diagnoPath)
 ###### h5 save #######
-h5write(diagnorateeffstatic, filePath,"diagnorateeffstatic")
 h5write(merged_updated, filePath,"merged_updated")
 h5write(diagno, filePath,"diagno")
-h5write(diagnostatic, filePath,"diagnostatic")
-h5write(diagnoeff, filePath,"diagnoeff")
-h5write(diagnoeffstatic, filePath,"diagnoeffstatic")
-h5write(diagnotryget, filePath,"diagnotryget")
+h5write(diagnoidd, filePath,"diagnoidd")
+h5write(diagnomod, filePath,"diagnomod")
+h5write(diagnomodidd, filePath,"diagnomodidd")
+h5write(diagnomodrate, filePath,"diagnomodrate")
+h5write(diagnomodrateidd, filePath,"diagnomodrateidd")
+h5write(diagnosim, filePath,"diagnosim")
 file.copy(filePath, filePathPython, overwrite = TRUE)
 
 # ####### Add more features from fullTable32 #########

@@ -54,21 +54,21 @@ for (cname in colnames(fam2_bin)){
   }
 }
 
-
-###Examples for merged_update, diagnostatic, diagnoeffstatic ####
-load(diagnoPath)
 # Plot ActualEDSS
-gendist(fullTable3, geom_histogram, "ActualEDSS", "disgno")
-gendist(fullTable3, geom_density, "ActualEDSS", "diagno")
+gendist(fullTable3, geom_histogram, "ActualEDSS", "fullTable3")
+gendist(fullTable3, geom_density, "ActualEDSS", "fullTable3")
+
+###Examples for merged_update, diagno, diagnomod ####
+load(diagnoPath)
 
 # Some Ploting for merged_updated
 gendist(merged_updated, geom_histogram, "EDSSRate", "merged_updated")
 gendist(merged_updated, geom_density, "EDSSRate", "merged_updated")
 gendist(merged_updated, geom_histogram, "ModEDSS", "merged_updated")
 
-# Some plotting for diagnostatic and diagnoefstatic
-generateCPDF(diagnostatic, geom_histogram, "ModEDSS")
-generateCPDF(diagnoeffstatic, geom_histogram, "ModEDSS")
-generateCPDF(diagnostatic, geom_density, "ModEDSS")
-generateCPDF(diagnoeffstatic, geom_density, "ModEDSS")
-generateCPDF(diagnorateeffstatic, geom_density, "ModEDSS")
+# Some plotting on ModEDSS for diagno and diagnomod
+generateCPDF(diagno, geom_histogram, "ModEDSS")
+generateCPDF(diagnomod, geom_histogram, "ModEDSS")
+generateCPDF(diagno, geom_density, "ModEDSS")
+generateCPDF(diagnomod, geom_density, "ModEDSS")
+generateCPDF(diagnomodrate, geom_density, "ModEDSS")
