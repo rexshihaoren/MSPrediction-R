@@ -99,7 +99,7 @@ diagnomodrate['PrevEDSSRate'][is.na(diagnomodrate['PrevEDSSRate']),] <- 0
 
 
 
-# seperate those with VisitID and ExamDate and those without
+# Seperate those with EPICID, VisitID and ExamDate and those without
 diagnoidd <- diagno
 diagno <-diagno[, !(names(diagno)%in%c("ExamDate","VisitID", "EPICID"))]
 diagnomodidd <- diagnomod

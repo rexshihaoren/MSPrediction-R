@@ -1,13 +1,19 @@
-# ###### Add patient specific's to diagno #######
+###### Add patient specific's to diagno #######
 
-# ####### Add more features from fullTable32 #########
-# load("step0/result.RData")
-# load(diagnoPath)
-# ####### Addpatient specific to merged_updated
-# psnames <- c('AgeOfOnset', 'Gender', 'DRB1_1501', 'OnsetToYr5RelapseCount')
-# ps <- fullTable32[c(psnames, "VisitID")]
-# ps <- merge(ps, merged_updated)
-# ps <- ps[c(pasnames, colnames(diagnostatic))]
-# diagnoeffstatic['PrevEDSSRate'][is.na(diagnoeffstatic['PrevEDSSRate']),] <- 0
-# # previous year parameters (+ Siena_PBVC gradient + meds)
-# pp <- c('DiseaseDuration','Siena_PBVC', 'New_T2_Lesions')
+####### Add more features from fullTable32 #########
+setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
+source("helper.r")
+load("step0/result.RData")
+load(diagnoPath)
+file.create(psPath)
+####### Addpatient specific to merged_updated
+psnames <- c('AgeOfOnset', 'Gender', 'DRB1_1501', 'OnsetToYr5RelapseCount')
+ps <- fullTable32[c(psnames, "VisitID")]
+ps <- merge(ps, diagnoidd)
+
+# Seperate those with EPICID, VisitID and ExamDate and those without
+psidd <- ps
+ps <-ps[, !(names(ps)%in%c("ExamDate","VisitID", "EPICID"))]
+save(ps, psidd, file=psPath)
+# previous year parameters (+ Siena_PBVC gradient + meds)
+#ppnames <- c('DiseaseDuration','Siena_PBVC', 'New_T2_Lesions')

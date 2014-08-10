@@ -58,7 +58,7 @@ for (cname in colnames(fam2_bin)){
 gendist(fullTable3, geom_histogram, "ActualEDSS", "fullTable3")
 gendist(fullTable3, geom_density, "ActualEDSS", "fullTable3")
 
-###Examples for merged_update, diagno, diagnomod ####
+########Examples for merged_update, diagno, diagnomod ####
 load(diagnoPath)
 
 # Some Ploting for merged_updated
@@ -72,3 +72,10 @@ generateCPDF(diagnomod, geom_histogram, "ModEDSS")
 generateCPDF(diagno, geom_density, "ModEDSS")
 generateCPDF(diagnomod, geom_density, "ModEDSS")
 generateCPDF(diagnomodrate, geom_density, "ModEDSS")
+
+
+########Examples for ps ####
+load(psPath)
+
+generateCPDF(ps, geom_histogram, "ModEDSS")
+generateCPDF(ps, geom_density, "ModEDSS")
