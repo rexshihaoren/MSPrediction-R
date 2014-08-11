@@ -77,5 +77,5 @@ generateCPDF(diagnomodrate, geom_density, "ModEDSS")
 ########Examples for ps ####
 load(psPath)
 
-generateCPDF(ps, geom_histogram, "ModEDSS")
-generateCPDF(ps, geom_density, "ModEDSS")
+generateCPDF(diagnops, geom_histogram, "ModEDSS")
+generateCPDF(diagnops, geom_density, "ModEDSS")

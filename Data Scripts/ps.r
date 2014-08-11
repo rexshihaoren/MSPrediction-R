@@ -13,11 +13,13 @@ ps <- merge(ps, diagnoidd)
 
 # Seperate those with EPICID, VisitID and ExamDate and those without
 psidd <- ps
-ps <-ps[, !(names(ps)%in%c("ExamDate","VisitID", "EPICID"))]
+diagnops <-ps[, !(names(ps)%in%c("ExamDate","VisitID", "EPICID"))]
+# digitize gender
+diagnops[["Gender"]]<- ifelse(diagnops[["Gender"]] == "M", 1, 0)
 
-### Save
-save(ps, psidd, file=psPath)
-h5write(ps, filePath,"ps")
+### Save #####
+save(diagnops, psidd, file=psPath)
+h5write(diagnops, filePath,"diagnops")
 file.copy(filePath, filePathPython, overwrite = TRUE)
 # previous year parameters (+ Siena_PBVC gradient + meds)
 #ppnames <- c('DiseaseDuration','Siena_PBVC', 'New_T2_Lesions')
