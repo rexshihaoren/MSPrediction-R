@@ -123,13 +123,3 @@ h5write(diagnomodrate, filePath,"diagnomodrate")
 h5write(diagnomodrateidd, filePath,"diagnomodrateidd")
 h5write(diagnosim, filePath,"diagnosim")
 file.copy(filePath, filePathPython, overwrite = TRUE)
-
-# ####### Add more features from fullTable32 #########
-# load("step0/result.RData")
-
-# # patient specific
-# pc <- c('AgeOfOnset', 'Gender', 'DRB1_1501', 'OnsetToYr5RelapseCount')
-# # pc <- fullTable32[c(features, "VisitID")]
-# # previous year parameters (+ Siena_PBVC gradient + meds)
-# pp <- c('DiseaseDuration','Siena_PBVC', 'New_T2_Lesions')
-
