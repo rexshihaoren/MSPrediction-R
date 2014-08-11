@@ -38,7 +38,7 @@ for(i in 1:(nvisits-1)){
 }
 
 #Remove
-pp <- pp[, ! colnames(pp) %in% c("Siena_PBVC", "DiseaseDuration", "New_T2_Lesions")]
+pp <- pp[, ! colnames(pp) %in% c("Siena_PBVC", "DiseaseDuration", "New_T2_Lesions", "Siena_PBVCRate")]
 #Siena_PBVC remove 0 or NA
 pp <- pp[pp["PrevSiena_PBVC"]!=0, ]
 pp <- pp[!is.na(pp["PrevSiena_PBVC"]), ]
@@ -50,5 +50,5 @@ ppidd <- ppnoNA
 diagnopp <-ppnoNA[, !(names(ppnoNA)%in%c("ExamDate","VisitID", "EPICID"))]
 ### Save #####
 save(diagnopp, ppidd, file=ppPath)
-h5write(data.frame(diagnopp), filePath,"diagnopp")
+h5write(diagnopp, filePath,"diagnopp")
 file.copy(filePath, filePathPython, overwrite = TRUE)
