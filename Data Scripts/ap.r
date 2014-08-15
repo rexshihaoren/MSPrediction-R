@@ -35,7 +35,7 @@ for(i in 1:(nvisits-1)){
 }
 
 #Remove
-ap <- ap[, ! colnames(pp) %in% c("MSSS", "GM_Volume", "OpticNeuritis", "MSSSRate", "GMVRate")]
+ap <- ap[, ! colnames(ap) %in% c("MSSS", "GM_Volume", "OpticNeuritis", "MSSSRate", "GMVRate")]
 # merge with ppidd
 apnoNA<-merge(ap,ppidd)
 apnoNA<-apnoNA[complete.cases(apnoNA),]
@@ -44,5 +44,5 @@ apidd <- apnoNA
 diagnoap <-apnoNA[, !(names(apnoNA)%in%c("ExamDate","VisitID", "EPICID"))]
 ### Save #####
 save(diagnoap, apidd, file=apPath)
-h5write(diagnoap, filePath,"diagnoap1")
+h5write(diagnoap, filePath,"diagnoap")
 file.copy(filePath, filePathPython, overwrite = TRUE)
