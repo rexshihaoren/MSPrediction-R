@@ -67,7 +67,7 @@ gendist(merged_updated, geom_density, "EDSSRate", "merged_updated")
 gendist(merged_updated, geom_histogram, "ModEDSS", "merged_updated")
 
 # Some plotting on ModEDSS for diagno and diagnomod
-generateCPDF(diagno, geom_histogram, "ModEDSS")
+#generateCPDF(diagno, geom_histogram, "ModEDSS")
 generateCPDF(diagnomod, geom_histogram, "ModEDSS")
 generateCPDF(diagno, geom_density, "ModEDSS")
 generateCPDF(diagnomod, geom_density, "ModEDSS")
@@ -77,5 +77,12 @@ generateCPDF(diagnomodrate, geom_density, "ModEDSS")
 ########Examples for ps ####
 load(psPath)
 
-generateCPDF(diagnops, geom_histogram, "ModEDSS")
+#generateCPDF(diagnops, geom_histogram, "ModEDSS")
 generateCPDF(diagnops, geom_density, "ModEDSS")
+
+
+########Examples for ps ####
+load(ppPath)
+
+#generateCPDF(diagnopp, geom_histogram, "ModEDSS")
+generateCPDF(diagnopp, geom_density, "ModEDSS")
