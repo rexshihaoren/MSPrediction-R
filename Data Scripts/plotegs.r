@@ -81,8 +81,15 @@ load(psPath)
 generateCPDF(diagnops, geom_density, "ModEDSS")
 
 
-########Examples for ps ####
+########Examples for pp ####
 load(ppPath)
 
 #generateCPDF(diagnopp, geom_histogram, "ModEDSS")
 generateCPDF(diagnopp, geom_density, "ModEDSS")
+
+
+########Examples for ap ####
+load(apPath)
+
+#generateCPDF(diagnopp, geom_histogram, "ModEDSS")
+generateCPDF(diagnoap, geom_density, "ModEDSS")

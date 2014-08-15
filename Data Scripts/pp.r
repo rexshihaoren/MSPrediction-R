@@ -10,13 +10,13 @@ file.create(ppPath)
 ####### reconstruct previous year parameters ########
 ppnames <- c("DiseaseDuration", "Siena_PBVC", "New_T2_Lesions")
 pp <- fullTable32[c("VisitID", "ExamDate", "EPICID", ppnames)]
-pp <- merge(DMT[c("VisitID", "TreatmentMolecule")], pp)
+#pp <- merge(DMT[c("VisitID", "TreatmentMolecule")], pp)
 
 
 pp[, "Siena_PBVCRate"] <- NA
 pp[, "PrevSiena_PBVC"] <- NA
 pp[, "PrevSiena_PBVCRate"] <- NA
-pp[, "PrevTreatmentM"] <- NA
+# pp[, "PrevTreatmentM"] <- NA
 #pp[, "PrevTreatmentT"] <- NA
 pp[, "PrevDiseaseDuration"] <- NA
 pp[, "PrevNew_T2_Lesions"]<-NA
@@ -32,13 +32,13 @@ for(i in 1:(nvisits-1)){
     pp[i+1, "PrevSiena_PBVCRate"] <- pp[i, "Siena_PBVCRate"]
     pp[i+1, "PrevDiseaseDuration"] <- pp[i, "DiseaseDuration"]
     pp[i+1, "PrevNew_T2_Lesions"]<-pp[i, "New_T2_Lesions"]
-    pp[i+1, "PrevTreatmentM"] <- pp[i, "TreatmentMolecule"]
+    #pp[i+1, "PrevTreatmentM"] <- pp[i, "TreatmentMolecule"]
    # pp[i+1, "PrevTreatmentT"] <- pp[i+1, "TreatmentType"]
   }
 }
 
 #Remove
-pp <- pp[, ! colnames(pp) %in% c("Siena_PBVC", "DiseaseDuration", "New_T2_Lesions", "Siena_PBVCRate", "TreatmentMolecule")]
+pp <- pp[, ! colnames(pp) %in% c("Siena_PBVC", "DiseaseDuration", "New_T2_Lesions", "Siena_PBVCRate")]
 #Siena_PBVC remove 0 or NA
 pp <- pp[pp["PrevSiena_PBVC"]!=0, ]
 pp <- pp[!is.na(pp["PrevSiena_PBVC"]), ]
