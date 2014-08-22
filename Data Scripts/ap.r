@@ -1,4 +1,4 @@
-#########Some additional features to ap########
+#########Some additional features to add########
 setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
 source("helper.r")
 load("step0/result.RData")
@@ -6,7 +6,7 @@ load(ppPath)
 DMT<-read.table("tableDMT.csv")
 file.create(apPath)
 ####### reconstruct additional parameters ########
-apnames <- c("MSSS", "GM_Volume", "OpticNeuritis", "VitaminD_Level")
+apnames <- c("MSSS", "GM_Volume", "OpticNeuritis", "VitaminD_Level", "Smoking")
 ap <- fullTable32[c("VisitID", "ExamDate", "EPICID", apnames)]
 
 ap[, "MSSSRate"] <- NA
@@ -17,6 +17,7 @@ ap[, "PrevOpticNeuritis"]<-NA
 ap[, "PrevMSSSRate"] <- NA
 ap[, "PrevGMVRate"] <- NA
 ap[, "PrevVDL"] <- NA
+ap[, "PrevSmoking"] <- NA
 ap[order(ap$EPICID, ap$ExamDate),]
 nvisits <- nrow(ap)
 for(i in 1:(nvisits-1)){
@@ -31,19 +32,20 @@ for(i in 1:(nvisits-1)){
     ap[i+1, "PrevGMV"] <- ap[i, "GM_Volume"]
     ap[i+1, "PrevOpticNeuritis"]<-ap[i, "OpticNeuritis"]
     ap[i+1, "PrevVDL"] <- ap[i, "VitaminD_Level"]
+    ap[i+1, "PrevSmoking"]<-ap[i, "Smoking"]
     ap[i+1, "PrevMSSSRate"] <- ap[i, "MSSSRate"]
     ap[i+1, "PrevGMVRate"] <- ap[i, "GMVRate"]
   }
 }
 
 #Remove
-ap <- ap[, ! colnames(ap) %in% c("MSSS", "GM_Volume", "OpticNeuritis", "MSSSRate", "GMVRate", "VitaminD_Level")]
+ap <- ap[, ! colnames(ap) %in% c("MSSS", "GM_Volume", "OpticNeuritis", "MSSSRate", "GMVRate", "VitaminD_Level", "Smoking")]
 # merge with ppidd
-apnoNA<-merge(ap,ppidd)
-apnoNA<-apnoNA[complete.cases(apnoNA),]
+apidd<-merge(ap,ppidd)
+#apnoNA<-apnoidd[complete.cases(apnoNA),]
 # Seperate those with EPICID, VisitID and ExamDate and those without
-apidd <- apnoNA
-diagnoap <-apnoNA[, !(names(apnoNA)%in%c("ExamDate","VisitID", "EPICID"))]
+# diagnoap <-apnoNA[, !(names(apnoNA)%in%c("ExamDate","VisitID", "EPICID"))]
+diagnoap <-apidd[, !(names(apidd)%in%c("ExamDate","VisitID", "EPICID"))]
 ### Save #####
 save(diagnoap, apidd, file=apPath)
 h5write(diagnoap, filePath,"diagnoap")

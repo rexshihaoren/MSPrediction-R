@@ -16,7 +16,8 @@ ps <- merge(ps, diagnoidd)
 #ps[["Gender"]]<- ifelse(ps[["Gender"]] == "M", 1, 0)
 
 #Overweight remove NA and digitize
-ps <- ps[!is.na(ps["Overweight"]), ]
+#ps <- ps[!is.na(ps["Overweight"]), ]
+#Overweight digitize
 ps[["Overweight"]]<- ifelse(ps[["Overweight"]] == "Yes", 1, 0)
 # Seperate those with EPICID, VisitID and ExamDate and those without
 psidd <- ps
