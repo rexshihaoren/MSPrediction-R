@@ -23,15 +23,15 @@ pp[, "PrevNew_T2_Lesions"]<-NA
 pp[order(pp$EPICID, pp$ExamDate),]
 nvisits <- nrow(pp)
 for(i in 1:(nvisits-1)){
-  # dSPBVC <- pp[i+1, "Siena_PBVC"] - pp[i, "Siena_PBVC"]
+  dSPBVC <- pp[i+1, "Siena_PBVC"] - pp[i, "Siena_PBVC"]
   dDay <-as.numeric(as.Date(pp[i+1,]$ExamDate) - as.Date(pp[i,]$ExamDate))
   dYear <- dDay/365
   if (pp[i+1, "EPICID"] == pp[i, "EPICID"] ){
-    # pp[i+1, "Siena_PBVCRate"] <- dSPBVC/dYear
-    # pp[i+1, "PrevSiena_PBVC"] <- pp[i, "Siena_PBVC"]
-    # pp[i+1, "PrevSiena_PBVCRate"] <- pp[i, "Siena_PBVCRate"]
+    pp[i+1, "Siena_PBVCRate"] <- dSPBVC/dYear
+    pp[i+1, "PrevSiena_PBVC"] <- pp[i, "Siena_PBVC"]
+    pp[i+1, "PrevSiena_PBVCRate"] <- pp[i, "Siena_PBVCRate"]
     pp[i+1, "PrevDiseaseDuration"] <- pp[i, "DiseaseDuration"]
-    # pp[i+1, "PrevNew_T2_Lesions"]<-pp[i, "New_T2_Lesions"]
+    pp[i+1, "PrevNew_T2_Lesions"]<-pp[i, "New_T2_Lesions"]
     #pp[i+1, "PrevTreatmentM"] <- pp[i, "TreatmentMolecule"]
    # pp[i+1, "PrevTreatmentT"] <- pp[i, "TreatmentType"]
   }
