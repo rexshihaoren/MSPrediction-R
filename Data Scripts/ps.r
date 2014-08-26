@@ -8,7 +8,7 @@ load(diagnoPath)
 file.create(psPath)
 ####### merge patient specific (ps) to diagno ###
 #psnames <- c('AgeOfOnset', 'Gender', 'DRB1_1501', 'OnsetToYr5RelapseCount')
-psnames <- c('AgeOfOnset', 'Overweight')
+psnames <- c('AgeOfOnset', 'Overweight', 'DRB1_1501', 'OnsetToYr5RelapseCount')
 ps <- fullTable32[c(psnames, "VisitID")]
 ps <- merge(ps, diagnoidd)
 

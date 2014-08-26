@@ -23,15 +23,29 @@ merged_updated[, "PrevEDSSRate"] <- NA
 merged_updated[, "RecTreatment"] <- NA
 
 nvisits <- nrow(merged_updated)
+EPICIDls <- unique(merged_updated$EPICID)
 for(i in 1:(nvisits-1)){
   dEDSS <- merged_updated[i+1, "ActualEDSS"] - merged_updated[i, "ActualEDSS"]
   dDay <-as.numeric(as.Date(merged_updated[i+1,]$ExamDate) - as.Date(merged_updated[i,]$ExamDate))
   dYear <- dDay/365
-  if (merged_updated[i+1, "EPICID"] == merged_updated[i, "EPICID"] ){
+  # oldEPIC <- merged_updated[i, "EPICID"]
+  # newEPIC <- merged_updated[i+1, "EPICID"]
+  # if (i == 1){
+  #   merged_updated[i, "EDSSRate"] <- 0
+  #   merged_updated[i, "PrevEDSSRate"] <- 0
+  # }
+  # if (oldEPIC != newEPIC){
+  #   merged_updated[i+1, "EDSSRate"] <- 0
+  #   merged_updated[i+1, "PrevEDSSRate"] <- 0
+  # }else{
+  #   merged_updated[i+1, "EDSSRate"] <- dEDSS/dYear
+  #   merged_updated[i+1, "PrevEDSS"] <- merged_updated[i, "ActualEDSS"]
+  #   merged_updated[i+1, "PrevEDSSRate"] <- merged_updated[i, "EDSSRate"]
+  # }
+  if (merged_updated[i, "EPICID"] == merged_updated[i+1, "EPICID"]){
     merged_updated[i+1, "EDSSRate"] <- dEDSS/dYear
     merged_updated[i+1, "PrevEDSS"] <- merged_updated[i, "ActualEDSS"]
     merged_updated[i+1, "PrevEDSSRate"] <- merged_updated[i, "EDSSRate"]
-  
   }
   merged_updated[i, "RecTreatment"] <- merged_updated[i, "VisitID"] %in% DMTVisitIDs
 }
@@ -61,7 +75,8 @@ for(i in 1:(nvisits-1)){
     }
   }
 }
-
+# Remove those with ModEDSS NA
+merged_updated <- merged_updated[!is.na(merged_updated$ModEDSS),]
 # DatePrep to use QOL(n) + EDSSRate(n-1) + EDSS(n-1) to predict ModEDSS: Diagnostic, n is exam date #
 diagnoColName <- unique(c("VisitID","EPICID", "ExamDate", "PrevEDSS","ActualEDSS", "PrevEDSSRate", "EDSSRate", "ModEDSS", "Imprecision", "RecTreatment", colnames(fam2)))
 diagno <- merged_updated[diagnoColName] 
@@ -86,16 +101,16 @@ for (col in targetColList){
   diagnomodrate <- calcRate(diagnomodrate, col, "ExamDate", "EPICID")
 }
 
-### For diagnomod, we remove patient's initial visit, because for now we can't predict without PrevEDSS;For the patient record with PrevEDSSRate NA, we assume it's 0;
-diagnomod<-diagnomod[- which( is.na(diagnomod['PrevEDSS'])),]
-diagnomod['PrevEDSSRate'][is.na(diagnomod['PrevEDSSRate']),] <- 0
-# same for diagno with fam2 only
-diagno<-diagno[- which( is.na(diagno['PrevEDSS'])),]
-diagno['PrevEDSSRate'][is.na(diagno['PrevEDSSRate']),] <- 0
+# ### For diagnomod, we remove patient's initial visit, because for now we can't predict without PrevEDSS;For the patient record with PrevEDSSRate NA, we assume it's 0;
+# diagnomod<-diagnomod[- which( is.na(diagnomod['PrevEDSS'])),]
+# diagnomod['PrevEDSSRate'][is.na(diagnomod['PrevEDSSRate']),] <- 0
+# # same for diagno with fam2 only
+# diagno<-diagno[- which( is.na(diagno['PrevEDSS'])),]
+# diagno['PrevEDSSRate'][is.na(diagno['PrevEDSSRate']),] <- 0
 
-### For diagnorate, we remove patient's initial visit, because for now we can't predict without PrevEDSS;For the patient record with PrevEDSSRate NA, we assume it's 0;
-diagnomodrate<-diagnomodrate[- which( is.na(diagnomodrate['PrevEDSS'])),]
-diagnomodrate['PrevEDSSRate'][is.na(diagnomodrate['PrevEDSSRate']),] <- 0
+# ### For diagnorate, we remove patient's initial visit, because for now we can't predict without PrevEDSS;For the patient record with PrevEDSSRate NA, we assume it's 0;
+# diagnomodrate<-diagnomodrate[- which( is.na(diagnomodrate['PrevEDSS'])),]
+# diagnomodrate['PrevEDSSRate'][is.na(diagnomodrate['PrevEDSSRate']),] <- 0
 
 
 

@@ -25,16 +25,40 @@ for(i in 1:(nvisits-1)){
   dGMV <- ap[i+1, "GM_Volume"] - ap[i, "GM_Volume"]
   dDay <-as.numeric(as.Date(ap[i+1,]$ExamDate) - as.Date(ap[i,]$ExamDate))
   dYear <- dDay/365
-  if (ap[i+1, "EPICID"] == ap[i, "EPICID"] ){
-    ap[i+1, "MSSSRate"] <- dMSSS/dYear
-    ap[i+1, "GMVRate"] <- dGMV/dYear
-    ap[i+1, "PrevMSSS"] <- ap[i, "MSSS"]
-    ap[i+1, "PrevGMV"] <- ap[i, "GM_Volume"]
-    ap[i+1, "PrevOpticNeuritis"]<-ap[i, "OpticNeuritis"]
-    ap[i+1, "PrevVDL"] <- ap[i, "VitaminD_Level"]
-    ap[i+1, "PrevSmoking"]<-ap[i, "Smoking"]
-    ap[i+1, "PrevMSSSRate"] <- ap[i, "MSSSRate"]
-    ap[i+1, "PrevGMVRate"] <- ap[i, "GMVRate"]
+  # oldEPIC <- ap[i, "EPICID"]
+  # newEPIC <- ap[i+1, "EPICID"]
+  # if (i ==1) {
+  #   ap[i, "MSSSRate"] <- 0
+  #   ap[i, "GMVRate"] <- 0
+  #   ap[i, "PrevMSSSRate"] <- 0
+  #   ap[i, "PrevGMVRate"] <- 0
+  # }
+  # if (oldEPIC != newEPIC) {
+  #   ap[i+1, "MSSSRate"] <- 0
+  #   ap[i+1, "GMVRate"] <- 0
+  #   ap[i+1, "PrevMSSSRate"] <- 0
+  #   ap[i+1, "PrevGMVRate"] <- 0
+  # } else {
+  #   ap[i+1, "MSSSRate"] <- dMSSS/dYear
+  #   ap[i+1, "GMVRate"] <- dGMV/dYear
+  #   ap[i+1, "PrevMSSS"] <- ap[i, "MSSS"]
+  #   ap[i+1, "PrevGMV"] <- ap[i, "GM_Volume"]
+  #   ap[i+1, "PrevOpticNeuritis"]<-ap[i, "OpticNeuritis"]
+  #   ap[i+1, "PrevVDL"] <- ap[i, "VitaminD_Level"]
+  #   ap[i+1, "PrevSmoking"]<-ap[i, "Smoking"]
+  #   ap[i+1, "PrevMSSSRate"] <- ap[i, "MSSSRate"]
+  #   ap[i+1, "PrevGMVRate"] <- ap[i, "GMVRate"]
+  # }
+  if (ap[i, "EPICID"] == ap[i+1, "EPICID"]){
+     ap[i+1, "MSSSRate"] <- dMSSS/dYear
+     ap[i+1, "GMVRate"] <- dGMV/dYear
+     ap[i+1, "PrevMSSS"] <- ap[i, "MSSS"]
+     ap[i+1, "PrevGMV"] <- ap[i, "GM_Volume"]
+     ap[i+1, "PrevOpticNeuritis"]<-ap[i, "OpticNeuritis"]
+     ap[i+1, "PrevVDL"] <- ap[i, "VitaminD_Level"]
+     ap[i+1, "PrevSmoking"]<-ap[i, "Smoking"]
+     ap[i+1, "PrevMSSSRate"] <- ap[i, "MSSSRate"]
+     ap[i+1, "PrevGMVRate"] <- ap[i, "GMVRate"]
   }
 }
 
