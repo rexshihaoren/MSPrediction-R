@@ -5,13 +5,14 @@ setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
 source("helper.r")
 load(apPath)
 file.create(imputePath)
-require(DMwR)
-##### Use KNN to impute if there is NA in this column #####
-diagnofinal <- knnImputation(as.data.frame(apply(diagnoap, c(1,2), as.numeric)), k = 4)
-###### If only complete cases #####
-diagnonoNA <- diagnoap[complete.cases(diagnoap),]
+##### Use KNN to impute everything except ModEDSS column #####
+diagnofinal <- KnnImputeXY(diagnoap, c("ModEDSS"))
+diagno0final <- KnnImputeXY(diagno0ap,c("ModEDSS"))
+###### If only complete columns #####
+diagnonoNA <- diagnoap[,colSums(is.na(diagnoap))==0]
 ### Save #####
-save(diagnofinal, diagnonoNA, file=imputePath)
+save(diagnofinal, diagno0final, diagnonoNA, file=imputePath)
 h5write(diagnofinal, filePath,"diagnofinal")
+h5write(diagno0final, filePath,"diagno0final")
 h5write(diagnonoNA, filePath, "diagnonoNA")
 file.copy(filePath, filePathPython, overwrite = TRUE)

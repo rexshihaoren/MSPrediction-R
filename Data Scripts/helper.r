@@ -16,6 +16,8 @@ require(MASS)
 require(fitdistrplus)
 require(plyr)
 require(RMySOL)
+# For knn
+require(DMwR)
 
 Binarize <- function(df, target){
   # to Binarize a target column of a datafram
@@ -38,6 +40,23 @@ DataProcessing <- function(df, target = ""){
   as.data.frame(processing)
 }
 
+KnnImputeXY<-function(df, targetList, k = 4){
+  # KnnImpute matrix [X,y]
+  #
+  # Args:
+  #   df: dataset
+  #   target: names of y
+  #   k: k for knn, 4 as default
+  #
+  # Returns:
+  #   output: matrix [ImputedX y]
+  tempX <- df[, ! names(df)%in%targetList]
+  tempy <- df[, targetList]
+  tempX <- knnImputation(as.data.frame(apply(tempX, c(1,2), as.numeric)), k = k)
+  output <- tempX
+  output[, targetList] <- tempy
+  return(output)
+}
 
 ### Testing add column rate of everything ####
 
