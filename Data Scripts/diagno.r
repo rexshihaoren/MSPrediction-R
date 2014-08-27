@@ -21,6 +21,8 @@ merged_updated[, "EDSSRate"] <- NA
 merged_updated[, "PrevEDSS"] <- NA
 merged_updated[, "PrevEDSSRate"] <- NA
 merged_updated[, "PrevRecTreatment"] <- NA
+# This is the dataframe I use 0 for PrevXXRate
+merged_updated0<- merged_updated
 
 nvisits <- nrow(merged_updated)
 EPICIDls <- unique(merged_updated$EPICID)
@@ -28,21 +30,19 @@ for(i in 1:(nvisits-1)){
   dEDSS <- merged_updated[i+1, "ActualEDSS"] - merged_updated[i, "ActualEDSS"]
   dDay <-as.numeric(as.Date(merged_updated[i+1,]$ExamDate) - as.Date(merged_updated[i,]$ExamDate))
   dYear <- dDay/365
-  # oldEPIC <- merged_updated[i, "EPICID"]
-  # newEPIC <- merged_updated[i+1, "EPICID"]
-  # if (i == 1){
-  #   merged_updated[i, "EDSSRate"] <- 0
-  #   merged_updated[i, "PrevEDSSRate"] <- 0
-  # }
-  # if (oldEPIC != newEPIC){
-  #   merged_updated[i+1, "EDSSRate"] <- 0
-  #   merged_updated[i+1, "PrevEDSSRate"] <- 0
-  # }else{
-  #   merged_updated[i+1, "EDSSRate"] <- dEDSS/dYear
-  #   merged_updated[i+1, "PrevEDSS"] <- merged_updated[i, "ActualEDSS"]
-  #   merged_updated[i+1, "PrevEDSSRate"] <- merged_updated[i, "EDSSRate"]
-  # }
-  if (merged_updated[i, "EPICID"] == merged_updated[i+1, "EPICID"]){
+  oldEPIC <- merged_updated[i, "EPICID"]
+  newEPIC <- merged_updated[i+1, "EPICID"]
+  if (i == 1){
+    merged_updated0[i, "PrevEDSSRate"] <- 0
+  }
+  if (oldEPIC != newEPIC){
+    merged_updated0[i+1, "PrevEDSSRate"] <- 0
+  }else{
+    merged_updated0[i+1, "EDSSRate"] <- dEDSS/dYear
+    merged_updated0[i+1, "PrevEDSS"] <- merged_updated0[i, "ActualEDSS"]
+    merged_updated0[i+1, "PrevEDSSRate"] <- merged_updated0[i, "EDSSRate"]
+  }
+  if (oldEPIC == newEPIC){
     merged_updated[i+1, "EDSSRate"] <- dEDSS/dYear
     merged_updated[i+1, "PrevEDSS"] <- merged_updated[i, "ActualEDSS"]
     merged_updated[i+1, "PrevEDSSRate"] <- merged_updated[i, "EDSSRate"]
@@ -126,8 +126,11 @@ diagnomodrate <-diagnomodrate[, !(names(diagnomodrate)%in%c("ExamDate","VisitID"
 get <- c('PrevEDSS','ModEDSS','PrevEDSSRate')
 diagnosim <- diagno[get]
 
+# Extract merged_updated0's VisitID and PrevEDSSRate
+diagno0idd <- merged_updated0[,c('VisitID', 'PrevEDSSRate')]
+
 ##### save to diagno.RData ###
-save(merged_updated, diagno, diagnoidd, diagnomod, diagnomodidd, diagnomodrate, diagnomodrateidd, diagnosim, file=diagnoPath)
+save(merged_updated, diagno, diagnoidd, diagno0idd, diagnomod, diagnomodidd, diagnomodrate, diagnomodrateidd, diagnosim, file=diagnoPath)
 ###### h5 save #######
 h5write(merged_updated, filePath,"merged_updated")
 h5write(diagno, filePath,"diagno")
