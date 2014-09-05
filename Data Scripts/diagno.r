@@ -62,17 +62,22 @@ for(i in 1:(nvisits-1)){
   dDay <- as.numeric(as.Date(merged_updated[i+1,]$ExamDate) - as.Date(merged_updated[i,]$ExamDate))
   dYear <- dDay/365
   if (merged_updated[i+1, "EPICID"] == merged_updated[i, "EPICID"] ){
-    if (abs(dEDSS) <= .5){
-      merged_updated[i+1, "Imprecision"] <- 1
+    if (dEDSS< 0){
       merged_updated[i+1, "ModEDSS"] <- 0
     } else {
-      merged_updated[i+1, "Imprecision"] <- 0
-      if (dEDSS< 0){
-        merged_updated[i+1, "ModEDSS"] <- 0
-      } else {
-        merged_updated[i+1, "ModEDSS"] <- 1
-      }
+      merged_updated[i+1, "ModEDSS"] <- 1
     }
+    # if (abs(dEDSS) <= .5){
+    #   merged_updated[i+1, "Imprecision"] <- 1
+    #   merged_updated[i+1, "ModEDSS"] <- 0
+    # } else {
+    #   merged_updated[i+1, "Imprecision"] <- 0
+    #   if (dEDSS< 0){
+    #     merged_updated[i+1, "ModEDSS"] <- 0
+    #   } else {
+    #     merged_updated[i+1, "ModEDSS"] <- 1
+    #   }
+    # }
   }
 }
 # Remove those with ModEDSS NA
