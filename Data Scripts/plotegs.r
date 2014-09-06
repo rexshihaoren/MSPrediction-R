@@ -96,5 +96,7 @@ generateCPDF(diagnoap, geom_density, "ModEDSS")
 
 ##### Examples for impute ###
 load(imputePath)
-generateCPDF(diagnonoNA, geom_histogram, "ModEDSS")
+generateCPDF(diagnofinal, geom_density, "ModEDSS")
+generateCPDF(diagno0final, geom_density, "ModEDSS")
+generateCPDF(diagnonoNA, geom_density, "ModEDSS")
 
