@@ -8,7 +8,7 @@ load(diagnoPath)
 file.create(psPath)
 ####### merge patient specific (ps) to diagno ###
 #psnames <- c('AgeOfOnset', 'Gender', 'DRB1_1501', 'OnsetToYr5RelapseCount')
-psnames <- c('AgeAtExam', 'Overweight', 'DRB1_1501', 'OnsetToYr5RelapseCount')
+psnames <- c('AgeOfOnset','AgeAtExam', 'Overweight', 'DRB1_1501', 'OnsetToYr5RelapseCount')
 
 # Remove Duplicated VisitID
 fullTable32 <- fullTable32[!duplicated(fullTable32$VisitID),]
