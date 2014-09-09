@@ -1,4 +1,6 @@
 ######## Examples using msplot functions###############
+##### Set up ####################
+setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
 source("helper.r")
 ###Examples for modfam2, fam2, merged ####
 load(binarizePath)
@@ -98,5 +100,7 @@ generateCPDF(diagnoap, geom_density, "ModEDSS")
 load(imputePath)
 generateCPDF(diagnofinal, geom_density, "ModEDSS")
 generateCPDF(diagno0final, geom_density, "ModEDSS")
+gendist(diagno0final, geom_histogram, "ModEDSS", "diagno0final")
 generateCPDF(diagnonoNA, geom_density, "ModEDSS")
+
 
