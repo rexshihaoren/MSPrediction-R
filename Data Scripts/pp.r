@@ -11,14 +11,14 @@ file.create(ppPath)
 ppnames <- c("DiseaseDuration", "Siena_PBVC", "New_T2_Lesions")
 fullTable32 <- fullTable32[!duplicated(fullTable32$VisitID),]
 pp <- fullTable32[c("VisitID", "ExamDate", "EPICID", ppnames)]
-#pp <- merge(DMT[c("VisitID", "TreatmentMolecule")], pp)
+pp <- merge(DMT[c("VisitID", "TreatmentMolecule", "TreatmentType")], pp)
 
 
 pp[, "Siena_PBVCRate"] <- NA
 pp[, "PrevSiena_PBVC"] <- NA
 pp[, "PrevSiena_PBVCRate"] <- NA
-# pp[, "PrevTreatmentM"] <- NA
-# pp[, "PrevTreatmentT"] <- NA
+pp[, "PrevTreatmentM"] <- NA
+pp[, "PrevTreatmentT"] <- NA
 pp[, "PrevDiseaseDuration"] <- NA
 pp[, "PrevNew_T2_Lesions"]<-NA
 pp <- pp[order(pp$EPICID, pp$ExamDate),]
@@ -39,11 +39,15 @@ for(i in 1:(nvisits-1)){
   if (oldEPIC != newEPIC){
     pp0[i+1, "PrevSiena_PBVCRate"] <-0
   } else {
+    pp0[i+1, "PrevTreatmentT"]<-pp0[i,"TreatmentType"]
+    pp0[i+1, "PrevTreatmentM"]<-pp0[i, "TreatmentMolecule"]
     pp0[i+1, "Siena_PBVCRate"] <- dSPBVC/dYear
     pp0[i+1, "PrevSiena_PBVC"] <- pp0[i, "Siena_PBVC"]
     pp0[i+1, "PrevSiena_PBVCRate"] <- pp0[i, "Siena_PBVCRate"]   
   }
   if (oldEPIC == newEPIC){
+    pp[i+1, "PrevTreatmentT"]<-pp[i,"TreatmentType"]
+    pp[i+1, "PrevTreatmentM"]<-pp[i, "TreatmentMolecule"]
     pp[i+1, "Siena_PBVCRate"] <- dSPBVC/dYear
     pp[i+1, "PrevSiena_PBVC"] <- pp[i, "Siena_PBVC"]
     pp[i+1, "PrevSiena_PBVCRate"] <- pp[i, "Siena_PBVCRate"]
@@ -56,7 +60,7 @@ for(i in 1:(nvisits-1)){
 pp0idd<- pp0[, c('VisitID','PrevSiena_PBVCRate')]
 
 #Remove
-pp <- pp[, ! colnames(pp) %in% c("Siena_PBVC", "DiseaseDuration", "New_T2_Lesions", "Siena_PBVCRate")]
+pp <- pp[, ! colnames(pp) %in% c("Siena_PBVC", "DiseaseDuration", "New_T2_Lesions", "Siena_PBVCRate", "TreatmentType", "TreatmentMolecule")]
 #Siena_PBVC remove 0 or NA
 # pp <- pp[pp["PrevSiena_PBVC"]!=0, ]
 # pp <- pp[!is.na(pp["PrevSiena_PBVC"]), ]
