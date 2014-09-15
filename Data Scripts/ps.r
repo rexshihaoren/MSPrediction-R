@@ -16,8 +16,9 @@ ps <- fullTable32[c(psnames, "VisitID")]
 ps <- merge(ps, diagnoidd)
 
 # Use DRB1_1501 * PrevEDSS other than DRB1_1501
-ps[,'DRB1Interact'] <- ps[,'DRB1_1501']*ps[,'PrevEDSS']
-ps[, 'DRB1_1501'] <- NULL
+ps[, 'DRB1:EDSS'] <- ps[,'DRB1_1501']*ps[,'PrevEDSS']
+ps[, 'DRB1:DiseaseDuration'] <- ps[,'DRB1_1501']*ps[,'PrevDiseaseDuration']
+ps[, 'DRB1:AgeAtExam'] <- ps[,'DRB1_1501']*ps[,'AgeAtExam']
 
 # digitize gender
 #ps[["Gender"]]<- ifelse(ps[["Gender"]] == "M", 1, 0)
