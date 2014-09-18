@@ -189,6 +189,8 @@ for(i in 1:(nvisits-1)){
 # file.create(staticPath)
 staticNames <- c("AgeOfOnset", "Overweight", "OnsetToYr5RelapseCount")
 static <- fullTable32[,c("VisitID","AgeOfOnset", "Overweight", "OnsetToYr5RelapseCount")]
+#Overweight digitize
+static[["Overweight"]]<- ifelse(static[["Overweight"]] == "Yes", 1, 0)
 
 ####### Genetics ########
 #

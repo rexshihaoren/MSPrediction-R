@@ -83,13 +83,13 @@ combine<-function(dfs, imp = F, cut = F, rmcols = NULL, tgt = "ModEDSS", index =
     output <- merge(output, dfs[[i]])
   }
   output <- output[, ! names(output)%in%rmcols]
+  output <- output[, ! names(output) %in% index]
   if(cut){
     output <- output[complete.cases(output),]
   }
   if(imp){
     output <- KnnImputeXY(output, tgt)
   }
-  output <- output[,!names(output) %in% index]
   as.data.frame(output)
 }
 
