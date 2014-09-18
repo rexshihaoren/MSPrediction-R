@@ -2,14 +2,20 @@
 
 ### Packages ####
 setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
+rPath <- 'data/predData.RData'
 filePath <- 'data/predData.h5'
 filePathPython <- '../../MSPrediction-Python/data/'
-binarizePath<- 'data/binarize.RData'
-diagnoPath <- 'data/diagno.RData'
-psPath<- 'data/ps.RData'
-ppPath<-'data/pp.RData'
-apPath<- 'data/ap.RData'
-imputePath <- 'data/impute.RData'
+# famPath <- 'data/fam.RData'
+# corePath <- 'data/core.RData'
+# MRIPath <- 'data/MRI.RData'
+# examPath <- 'data/exam.Rdata'
+# treatmentPath <- 'data/treatment.RData'
+# targetPath<- 'data/target.RData'
+# geneticsPath<- 'data/genetics.RData'
+# staticPath <- 'data/static.RData'
+# ppPath<-'data/pp.RData'
+# apPath<- 'data/ap.RData'
+# imputePath <- 'data/impute.RData'
 require(ggplot2)
 require(rhdf5)
 require(MASS)
@@ -55,6 +61,34 @@ KnnImputeXY<-function(df, targetList, k = 4){
   tempX <- knnImputation(as.data.frame(apply(tempX, c(1,2), as.numeric)), k = k)
   output <- tempX
   output[, targetList] <- tempy
+  return(output)
+}
+
+combine<-function(dfs, imp = F, cut = F, rmcols = NULL, tgt = "ModEDSS", index = "VisitID"){
+  # function to combine dataframs, with the option of imputation, cut incomplete cases, and remove certain columns by name
+  # 
+  # Args:
+  #   dfs: list of dataframs
+  #   imp: T if imputation
+  #   cut: T if only preserve complete cases
+  #   rmcols: list of colnames to remove
+  #   tgt: string, target column name
+  #   index: string, id col name
+  #   
+  # Returns:
+  #   output: the disired dataset
+  output <- dfs[1]
+  for(i in (2:length(dfs))){
+    output <- merge(output, dfs[i])
+  }
+  output <- output[, ! names(output)%in%rmcols]
+  if(cut){
+    output <- output[complete.cases(output),]
+  }
+  if(imp){
+    output <- KnnImputeXY(output, tgt)
+  }
+  output <- output[,names(ouput) %in% index]
   return(output)
 }
 
@@ -178,6 +212,7 @@ fitCPDF<- function(df, xname, yname, f, plotfunc, method, start = NULL){
  fpath = paste("plots/",paste(dfname, "fitcpdf", xname,"on",yname, f, sep = "_"), ".pdf", sep="")
  ggsave(file = fpath)
 }
+
 
 
 # # List of density functions
