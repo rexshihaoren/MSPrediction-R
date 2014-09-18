@@ -2,7 +2,8 @@
 
 ### Packages ####
 setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
-rPath <- 'data/predData.RData'
+gatherPath <- 'data/gather.RData'
+testPath <- 'data/test.RData'
 filePath <- 'data/predData.h5'
 filePathPython <- '../../MSPrediction-Python/data/'
 # famPath <- 'data/fam.RData'
@@ -61,7 +62,7 @@ KnnImputeXY<-function(df, targetList, k = 4){
   tempX <- knnImputation(as.data.frame(apply(tempX, c(1,2), as.numeric)), k = k)
   output <- tempX
   output[, targetList] <- tempy
-  return(output)
+  as.data.frame(output)
 }
 
 combine<-function(dfs, imp = F, cut = F, rmcols = NULL, tgt = "ModEDSS", index = "VisitID"){
@@ -77,9 +78,9 @@ combine<-function(dfs, imp = F, cut = F, rmcols = NULL, tgt = "ModEDSS", index =
   #   
   # Returns:
   #   output: the disired dataset
-  output <- dfs[1]
+  output <- dfs[[1]]
   for(i in (2:length(dfs))){
-    output <- merge(output, dfs[i])
+    output <- merge(output, dfs[[i]])
   }
   output <- output[, ! names(output)%in%rmcols]
   if(cut){
@@ -88,8 +89,8 @@ combine<-function(dfs, imp = F, cut = F, rmcols = NULL, tgt = "ModEDSS", index =
   if(imp){
     output <- KnnImputeXY(output, tgt)
   }
-  output <- output[,names(ouput) %in% index]
-  return(output)
+  output <- output[,!names(output) %in% index]
+  as.data.frame(output)
 }
 
 ### Testing add column rate of everything ####

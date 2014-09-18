@@ -3,14 +3,7 @@
 ##### Set up ####################
 setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
 source("help.r")
-f <- h5createFile(filePath)
-# If 'data/predData.h5' exists, overwrite it
-if (! f){
-  file.remove(filePath)
-  h5createFile(filePath)
-}
-
-file.create(rPath)
+file.create(gatherPath)
 ##### Fetch Raw Data #####
 #
 # fam2, modfam2, fullTable32, fullTable3, and DMT
@@ -239,7 +232,7 @@ target <- temp[,c("VisitID", targetNames)]
 # save(target, file = targetPath)
 # save(static, file = staticPath)
 # save(genetics, file = geneticsPath)
-save(fam2, modfam2, core, coreNA, MRI, exam, treatment, target, static, genetics, file = rPath)
+save(fam2, modfam2, core, coreNA, MRI, exam, treatment, target, static, genetics, file = gatherPath)
 
 
 
