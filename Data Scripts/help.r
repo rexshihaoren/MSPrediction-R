@@ -59,33 +59,42 @@ KnnImputeXY<-function(df, targetList, k = 4){
   #   output: matrix [ImputedX y]
   tempX <- df[, ! names(df)%in%targetList]
   tempy <- df[, targetList]
+
   tempX <- knnImputation(as.data.frame(apply(tempX, c(1,2), as.numeric)), k = k)
   output <- tempX
   output[, targetList] <- tempy
   as.data.frame(output)
 }
 
-combine<-function(dfs, imp = F, cut = F, rmcols = NULL, tgt = "ModEDSS", index = "VisitID"){
+combine<-function(dfs, imp = F, cut = F, cutcols = NA, rmcols = NULL, tgt = "ModEDSS", index = "VisitID"){
   # function to combine dataframs, with the option of imputation, cut incomplete cases, and remove certain columns by name
   # 
   # Args:
   #   dfs: list of dataframs
   #   imp: T if imputation
   #   cut: T if only preserve complete cases
+  #   cutcols: list of colnames that need to use compete.cases aka Cut
   #   rmcols: list of colnames to remove
   #   tgt: string, target column name
   #   index: string, id col name
   #   
   # Returns:
   #   output: the disired dataset
+  #   
+  
   output <- dfs[[1]]
   for(i in (2:length(dfs))){
-    output <- merge(output, dfs[[i]])
+    output <- merge(output, dfs[[i]], by = index, all.x = T, all.y = F)
   }
   output <- output[, ! names(output)%in%rmcols]
   output <- output[, ! names(output) %in% index]
+  stopifnot(nrow(output) == nrow(dfs[[1]]))
   if(cut){
-    output <- output[complete.cases(output),]
+    if (is.na(cutcols)){
+      output <- output[complete.cases(output),]
+    } else {
+      output <- output[complete.cases(output[cutcols]),]
+    }
   }
   if(imp){
     output <- KnnImputeXY(output, tgt)

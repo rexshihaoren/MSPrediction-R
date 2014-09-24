@@ -2,7 +2,7 @@
 
 ## Set up
 setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
-source("help.r")
+source('gather.r')
 # Create h5 path
 f <- h5createFile(filePath)
 # If 'data/predData.h5' exists, overwrite it
