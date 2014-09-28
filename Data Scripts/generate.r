@@ -24,7 +24,7 @@
 # 
 # Core&Static&MRI_Imp
 # 
-# Core&Static$Examination-VDL_Cut (for PrevOpticNeuritis)
+# Core&Static&ExamwoVDL_Cut (for PrevOpticNeuritis)
 # 	exam <- exam-PrevOpticNeuritis
 # 	
 # Core&Static&Examination-VDL
@@ -120,10 +120,6 @@ h5write(CorewStaticwExamwMRIwoT2LwoVDL_Imp, filePath,"CorewStaticwExamwMRIwoT2Lw
 h5write(CorewStaticwExamwMRIwoT2L_CutVDL_Imp, filePath,"CorewStaticwExamwMRIwoT2L_CutVDL_Imp")
 h5write(CorewStaticwExamwMRIwoT2L_Imp, filePath,"CorewStaticwExamwMRIwoT2L_Imp")
 h5write(CorewStaticwExamwMRIwoVDL_CutT2L_Imp, filePath,"CorewStaticwExamwMRIwoVDL_CutT2L_Imp")
-h5write(CorewStaticwExamwMRIwoVDL_Imp , filePath,"CorewStaticwExamwMRIwoVDL_Imp ")
+h5write(CorewStaticwExamwMRIwoVDL_Imp , filePath,"CorewStaticwExamwMRIwoVDL_Imp")
 h5write(CorewStaticwExamwMRI_Imp, filePath,"CorewStaticwExamwMRI_Imp")
 file.copy(filePath, filePathPython, overwrite = TRUE)
-
-
-
-
