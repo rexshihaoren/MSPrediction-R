@@ -1,10 +1,19 @@
 #### All the functions needed for MSBioScreen-R ######
 
 ### Packages ####
+
+#### Switch ####
+# newModEDSS denotes whether to use "new" ModEDSS (allow 0.5 differences for EDSS>4)
+if (! exists("newModEDSS"))
+  newModEDSS <- F
 setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
 gatherPath <- 'data/gather.RData'
 testPath <- 'data/test.RData'
-filePath <- 'data/predData.h5'
+if(newModEDSS){
+  filePath <- 'data/newpredData.h5'
+} else {
+  filePath <- 'data/predData.h5'
+}
 filePathPython <- '../../MSPrediction-Python/data/'
 # famPath <- 'data/fam.RData'
 # corePath <- 'data/core.RData'
@@ -131,6 +140,18 @@ calcRate<-function(df, colName, tColName, index){
   return(newdf)
 }
 
+getDfName<-function(df, newModEDSS){
+  # add "new" in front of df if newModEDSS is True
+  # Args: 
+  #   df: datasetname
+  #   newModEDSS: whether we use the new ModEDSS
+  #
+  # Returns:
+  if(newModEDSS){
+    df <- paste("new", df, sep = "")
+  }
+  return(df)
+}
 
 ###### Plotting Functions for Statistical Analysis#############
 

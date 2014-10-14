@@ -96,30 +96,8 @@ CorewStaticwExamwMRI_Imp <- combine(dfs = list(target, core, static, exam, MRI),
 
 #### H5 Save
 #h5write(Core_Imp, filePath, "Core_Imp")
-h5write(CorewFam, filePath,"CorewFam")
-h5write(CorewmodFam, filePath,"CorewmodFam")
-h5write(CorewStaticwoOW, filePath,"CorewStaticwoOW")
-h5write(CorewStatic_Imp, filePath,"CorewStatic_Imp")
-h5write(CorewStatic_Cut, filePath,"CorewStatic_Cut")
-
-h5write(CorewStaticwFam, filePath,"CorewStaticwFam")
-h5write(CorewStaticwTreatment, filePath,"CorewStaticwTreatment")
-
-h5write(CorewStaticwGenetics_Imp, filePath,"CorewStaticwGenetics_Imp")
-h5write(CorewStaticwGenetics_Cut, filePath,"CorewStaticwGenetics_Cut")
-
-h5write(CorewStaticwMRI_Imp, filePath,"CorewStaticwMRI_Imp")
-
-h5write(CorewStaticwExamwoVDL_Cut, filePath,"CorewStaticwExamwoVDL_Cut")
-
-h5write(CorewStaticwExamwoVDL, filePath, "CorewStaticwExamwoVDL")
-h5write(CorewStaticwExam_Imp, filePath,"CorewStaticwExam_Imp")
-h5write(CorewStaticwExam_Cut, filePath,"CorewStaticwExam_Cut")
-
-h5write(CorewStaticwExamwMRIwoT2LwoVDL_Imp, filePath,"CorewStaticwExamwMRIwoT2LwoVDL_Imp")
-h5write(CorewStaticwExamwMRIwoT2L_CutVDL_Imp, filePath,"CorewStaticwExamwMRIwoT2L_CutVDL_Imp")
-h5write(CorewStaticwExamwMRIwoT2L_Imp, filePath,"CorewStaticwExamwMRIwoT2L_Imp")
-h5write(CorewStaticwExamwMRIwoVDL_CutT2L_Imp, filePath,"CorewStaticwExamwMRIwoVDL_CutT2L_Imp")
-h5write(CorewStaticwExamwMRIwoVDL_Imp , filePath,"CorewStaticwExamwMRIwoVDL_Imp")
-h5write(CorewStaticwExamwMRI_Imp, filePath,"CorewStaticwExamwMRI_Imp")
+saveList <- c("CorewFam","CorewmodFam", "CorewStaticwoOW", "CorewStatic_Imp", "CorewStatic_Cut", "CorewStaticwFam", "CorewStaticwTreatment", "CorewStaticwGenetics_Imp", "CorewStaticwGenetics_Cut", "CorewStaticwMRI_Imp", "CorewStaticwExamwoVDL_Cut", "CorewStaticwExamwoVDL", "CorewStaticwExam_Imp", "CorewStaticwExam_Cut", "CorewStaticwExamwMRIwoT2LwoVDL_Imp", "CorewStaticwExamwMRIwoT2L_CutVDL_Imp", "CorewStaticwExamwMRIwoT2L_Imp", "CorewStaticwExamwMRIwoVDL_CutT2L_Imp", "CorewStaticwExamwMRIwoVDL_Imp", "CorewStaticwExamwMRI_Imp")
+for (i in saveList){
+	h5write(get(i), filePath, getDfName(i, newModEDSS))
+}
 file.copy(filePath, filePathPython, overwrite = TRUE)

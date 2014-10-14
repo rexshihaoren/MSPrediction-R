@@ -98,15 +98,35 @@ target <- target[order(target$EPICID, target$ExamDate),]
 target[, "ModEDSS"] <- NA
 nvisits <- nrow(target)
 for(i in 1:(nvisits-1)){
-  dEDSS <- target[i+1, "ActualEDSS"] - target[i, "ActualEDSS"]
+  newEDSS <- target[i+1, "ActualEDSS"]
+  dEDSS <- newEDSS - target[i, "ActualEDSS"]
+  if (newEDSS > 4){
+    ieq <- (abs(dEDSS) < 0.5)
+  } else {
+    ieq <- (abs(dEDSS) <= 0.5)
+  }
   if (target[i+1, "EPICID"] == target[i, "EPICID"] ){
-    if (abs(dEDSS) <= .5){
-      target[i+1, "ModEDSS"] <- 0
-    } else {
-      if (dEDSS< 0){
+    # newModEDSS
+    if (newModEDSS){
+      if (ieq) {
         target[i+1, "ModEDSS"] <- 0
       } else {
-        target[i+1, "ModEDSS"] <- 1
+        if (dEDSS< 0){
+          target[i+1, "ModEDSS"] <- 0
+        } else {
+          target[i+1, "ModEDSS"] <- 1
+        }
+      }  
+    } else {
+    # ModEDSS
+      if(abs(dEDSS) <= 0.5){
+        target[i+1, "ModEDSS"] <- 0
+      } else {
+        if (dEDSS< 0){
+          target[i+1, "ModEDSS"] <- 0
+        } else {
+          target[i+1, "ModEDSS"] <- 1
+        }   
       }
     }
   }
