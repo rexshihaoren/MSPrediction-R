@@ -58,15 +58,15 @@ bit1 <- 0
 if (bit1 == 1){
 	core <- coreNA
 }
-CorewFam_Imp <- combine(dfs = list(target, core, fam2), imp = T)
-CorewmodFam_Imp <- combine(dfs = list(target, core, modfam2), imp = T)
+CorewFam_Cut <- combine(dfs = list(target, core, fam2), cut = T)
+CorewmodFam_Cut <- combine(dfs = list(target, core, modfam2), cut = T)
 CorewStaticwoOW <- combine(dfs = list(target, core, static), rmcols = c("Overweight"))
 CorewStatic_Imp <- combine(dfs = list(target, core, static), imp = T)
 CorewStatic_Cut <- combine(dfs = list(target, core, static), cut = T)
 
 static <- static[, !names(static)%in%c("Overweight")]
 
-CorewStaticwFam <- combine(dfs = list(target, core, static, fam2), imp = T)
+CorewStaticwFam_Cut <- combine(dfs = list(target, core, static, fam2), cut = T)
 CorewStaticwTreatment <- combine(dfs = list(target, core, static, treatment))
 
 # Too many NA's for genetics
@@ -96,7 +96,7 @@ CorewStaticwExamwMRI_Imp <- combine(dfs = list(target, core, static, exam, MRI),
 
 #### H5 Save
 #h5write(Core_Imp, filePath, "Core_Imp")
-saveList <- c("CorewFam","CorewmodFam", "CorewStaticwoOW", "CorewStatic_Imp", "CorewStatic_Cut", "CorewStaticwFam", "CorewStaticwTreatment", "CorewStaticwGenetics_Imp", "CorewStaticwGenetics_Cut", "CorewStaticwMRI_Imp", "CorewStaticwExamwoVDL_Cut", "CorewStaticwExamwoVDL", "CorewStaticwExam_Imp", "CorewStaticwExam_Cut", "CorewStaticwExamwMRIwoT2LwoVDL_Imp", "CorewStaticwExamwMRIwoT2L_CutVDL_Imp", "CorewStaticwExamwMRIwoT2L_Imp", "CorewStaticwExamwMRIwoVDL_CutT2L_Imp", "CorewStaticwExamwMRIwoVDL_Imp", "CorewStaticwExamwMRI_Imp")
+saveList <- c("CorewFam_Cut","CorewmodFam_Cut", "CorewStaticwoOW", "CorewStatic_Imp", "CorewStatic_Cut", "CorewStaticwFam_Cut", "CorewStaticwTreatment", "CorewStaticwGenetics_Imp", "CorewStaticwGenetics_Cut", "CorewStaticwMRI_Imp", "CorewStaticwExamwoVDL_Cut", "CorewStaticwExamwoVDL", "CorewStaticwExam_Imp", "CorewStaticwExam_Cut", "CorewStaticwExamwMRIwoT2LwoVDL_Imp", "CorewStaticwExamwMRIwoT2L_CutVDL_Imp", "CorewStaticwExamwMRIwoT2L_Imp", "CorewStaticwExamwMRIwoVDL_CutT2L_Imp", "CorewStaticwExamwMRIwoVDL_Imp", "CorewStaticwExamwMRI_Imp")
 for (i in saveList){
 	h5write(get(i), filePath, getDfName(i, newModEDSS))
 }
