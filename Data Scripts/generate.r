@@ -58,15 +58,15 @@ bit1 <- 0
 if (bit1 == 1){
 	core <- coreNA
 }
-CorewFam <- combine(dfs = list(target, core, fam2))
-CorewmodFam <- combine(dfs = list(target, core, modfam2))
+CorewFam_Imp <- combine(dfs = list(target, core, fam2), imp = T)
+CorewmodFam_Imp <- combine(dfs = list(target, core, modfam2), imp = T)
 CorewStaticwoOW <- combine(dfs = list(target, core, static), rmcols = c("Overweight"))
 CorewStatic_Imp <- combine(dfs = list(target, core, static), imp = T)
 CorewStatic_Cut <- combine(dfs = list(target, core, static), cut = T)
 
 static <- static[, !names(static)%in%c("Overweight")]
 
-CorewStaticwFam <- combine(dfs = list(target, core, static, fam2))
+CorewStaticwFam <- combine(dfs = list(target, core, static, fam2), imp = T)
 CorewStaticwTreatment <- combine(dfs = list(target, core, static, treatment))
 
 # Too many NA's for genetics
