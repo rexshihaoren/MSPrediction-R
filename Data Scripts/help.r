@@ -10,7 +10,8 @@ setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
 gatherPath <- 'data/gather.RData'
 testPath <- 'data/test.RData'
 if(newModEDSS){
-  filePath <- 'data/newpredData.h5'
+  # Imprecision0-4
+  filePath <- 'data/PredData_Impr0-4.h5'
 } else {
   filePath <- 'data/predData.h5'
 }
