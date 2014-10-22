@@ -97,7 +97,12 @@ CorewStaticwExamwMRI_Imp <- combine(dfs = list(target, core, static, exam, MRI),
 #### H5 Save
 #h5write(Core_Imp, filePath, "Core_Imp")
 saveList <- c("CorewFam_Cut","CorewmodFam_Cut", "CorewStaticwoOW", "CorewStatic_Imp", "CorewStatic_Cut", "CorewStaticwFam_Cut", "CorewStaticwTreatment", "CorewStaticwGenetics_Imp", "CorewStaticwGenetics_Cut", "CorewStaticwMRI_Imp", "CorewStaticwExamwoVDL_Cut", "CorewStaticwExamwoVDL", "CorewStaticwExam_Imp", "CorewStaticwExam_Cut", "CorewStaticwExamwMRIwoT2LwoVDL_Imp", "CorewStaticwExamwMRIwoT2L_CutVDL_Imp", "CorewStaticwExamwMRIwoT2L_Imp", "CorewStaticwExamwMRIwoVDL_CutT2L_Imp", "CorewStaticwExamwMRIwoVDL_Imp", "CorewStaticwExamwMRI_Imp")
+# This version put "new" in front of everything in PredData_Impr0-4.h5
+# for (i in saveList){
+# 	h5write(get(i), filePath, getDfName(i, newModEDSS))
+# }
+# This version doesn't
 for (i in saveList){
-	h5write(get(i), filePath, getDfName(i, newModEDSS))
+	h5write(get(i), filePath, i)
 }
 file.copy(filePath, filePathPython, overwrite = TRUE)
