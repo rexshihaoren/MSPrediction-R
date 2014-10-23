@@ -25,7 +25,12 @@ Core_Imp <- combine(dfs = list(target, coreNA), imp = T)
 #save(EDSS,EDSSwEDSSRate, EDSSwEDSSRate_Imp,CorewoRate,Core,Core_Imp, file = testPath)
 save(EDSS,EDSSwEDSSRate,CorewoRate,Core,Core_Imp, file = testPath)
 testList <- c("EDSS", "EDSSwEDSSRate", "CorewoRate", "Core", "Core_Imp")
+# This version put "new" in front of everything in PredData_Impr0-4.h5
+# for (i in testList){
+# 	h5write(get(i), filePath, getDfName(i, newModEDSS))
+# }
+# This version doesn't
 for (i in testList){
-	h5write(get(i), filePath, getDfName(i, newModEDSS))
+	h5write(get(i), filePath, i)
 }
 file.copy(filePath, filePathPython, overwrite = TRUE)
