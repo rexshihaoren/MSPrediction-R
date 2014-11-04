@@ -11,7 +11,7 @@ gatherPath <- 'data/gather.RData'
 testPath <- 'data/test.RData'
 if(newModEDSS){
   # Imprecision0-4
-  filePath <- 'data/PredData_Impr0-4.h5'
+  filePath <- 'data/predData_Impr0-4.h5'
   filePathPython <- '../../MSPrediction-Python/predData_Impr0-4/'
 } else {
   filePath <- 'data/predData.h5'
