@@ -155,6 +155,66 @@ getDfName<-function(df, newModEDSS){
   return(df)
 }
 
+
+## GetAnalysisGrpStr
+
+# High Potency Group 
+HPgroup <- c("Chemo", "Chemo - Cytoxan", "FTY 720" , "FTY 720 (Double-blind)", "Gilenya", "Fingolimod (Gilenya)", "Chemo - Mitoxantrone", "Chemo - Rituximab", "Chemo - Rituxan", "Chemo - Rituximab", "Chemo-Placebo", "Fumaderm" , "BG12", "Tecfidera", "Natalizumab", "Antegren (clinical trial)", "Other - Antegren Clinical Trial")
+# Platform Therapy Group
+#  NOTE: other - IVIG is lower case
+PTgroup <- c("Aubagio", "Interferon - Avonex", "Interferon - Betaseron", "Copaxone", "Glatiramer Acetate (Copolymer-1)", "Extavia", "Interferon", "Interferon - Rebif", "Azathioprine (Immuran)", "Chemo - Imuran", "Chemo - Cyclosporin", "Chemo - Cladribine Trial", "Chemo - Cellcept", "Chemo - Methotrexate", "other - IVIG", "Other - IVMP", "Other - IVSM", "Other - Decadron")
+# Other Group
+Ogroup <- c("Ampyra", "Doxycycline", "Low Dose Naltrexone",
+"Low Dose Naltrexone(Double-Blind)", "MBP8298", "Other - Minocycline", "Other - Oral Steroids", "Other - Plasmapheresis", "Other - T Cell Vaccination Study", "Other - TCR Peptide Trial")
+
+getAnalysisGrpStr<-function(tmls){
+ # Determine which Analysis Group this Treamtment Molecule belongs to
+ # Args:
+ #     tmls: TreatmentMolecule, array of string
+ # Returns:
+ #     prevAG: Previous Analysis Group String, string
+  prevAG <- c()
+  # print("tmls:")
+  # print(tmls)
+  for(tm in tmls){
+    if(tm %in% HPgroup){
+      prevAG <-c(prevAG, "PrevHighPotencyGrp")
+    } else{
+      if(tm %in% PTgroup){
+        prevAG <- c(prevAG, "PrevPlatformTherapyGrp")
+      } else {
+        prevAG <- c(prevAG, "PrevOtherGrp")
+      }
+    }
+  }
+  # print("prevAG:")
+  # print(prevAG)
+  return(unique(prevAG))
+}
+
+getTreatmentClassStr<-function(ttls){
+ # Determine which TreatmentClass this Treamtment Molecule belongs to
+ # Args:
+ #     ttls: TreatmentType, array of string
+ # Returns:
+ #     prevTC: Previous Treatment Class String, string
+  prevTC <- c()
+  for (tt in ttls){
+    if(tt == "Chemo & Immunosuppressant"){
+      prevTC <-c(prevTC, "PrevImmunosuppressantTyp")
+    } else{
+      if(tt == "Monoclonal Ab"){
+        prevTC <- c(prevTC, "PrevMonoclonalAbTyp")
+      } else {
+        prevTC0 <- paste("Prev", tt, sep = "")
+        prevTC0 <- paste(prevTC0, "Typ", sep = "")
+        prevTC<-c(prevTC, prevTC0)
+      }
+    }
+  }
+  return(unique(prevTC))
+}
+
 ###### Plotting Functions for Statistical Analysis#############
 
 gendist<-function(somedf, plotfunc, target, filename){

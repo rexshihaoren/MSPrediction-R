@@ -84,9 +84,12 @@ exam[, c("PrevOpticNeuritis", "PrevVDL", "PrevDiseaseDuration")] <- NA
 # From DMT
 # DMT described all the treatment
 # file.create(treatmentPath)
-treatmentNames <- c("PrevRecTreatment", "PrevTreatmentMCount", "PrevTreatmentTCount")
+# 
+# include Treatment Analysis Groups
+treatmentNames <- c("PrevHighPotencyGrp", "PrevPlatformTherapyGrp", "PrevOtherGrp", "PrevImmunosuppressantTyp", "PrevImmunomodulatorTyp", "PrevMonoclonalAbTyp", "PrevOtherTyp")
+# treatmentNames <- c("PrevRecTreatment", "PrevTreatmentMCount", "PrevTreatmentTCount")
 treatment <- DMT[c("VisitID", "TreatmentMolecule", "TreatmentType")]
-
+treatment <- data.frame(lapply(treatment, as.character), stringsAsFactors=FALSE)
 
 ##### Target ########
 #Add target column 'ModEDSS' (modified EDSS), denoting whether EDSS increased
@@ -150,7 +153,8 @@ DMTVisitIDs <- unique(treatment[["VisitID"]])
 nvisits <- nrow(temp)
 EPICIDls <- unique(temp$EPICID)
 # Initialize "PrevRecTreatment", "PrevTreatmentMCount", "PrevTreatmentTCount" in temp
-temp[, c("PrevRecTreatment", "PrevTreatmentMCount", "PrevTreatmentTCount")] <- NA
+# temp[, c("PrevRecTreatment", "PrevTreatmentMCount", "PrevTreatmentTCount")] <- NA
+temp[, treatmentNames] <- 0
 # colnames that include "PrevXXRate"
 PrevRateNames <- names(temp)[grep("Rate",names(temp))]
 # Temporary cols XXRate for calculating PrevXXRate
@@ -185,9 +189,11 @@ for(i in 1:(nvisits-1)){
     temp[i+1, "PrevOpticNeuritis"] <- temp[i, "OpticNeuritis"]
     temp[i+1, "PrevVDL"] <- temp[i, "VitaminD_Level"]
     temp[i+1, "PrevDiseaseDuration"] <- temp[i, "DiseaseDuration"]
-    temp[i+1, "PrevRecTreatment"] <- temp[i, "VisitID"] %in% DMTVisitIDs
-    temp[i+1, "PrevTreatmentTCount"] <- length(unique(treatment[treatment$VisitID == temp[i, "VisitID"], "TreatmentType"]))
-    temp[i+1, "PrevTreatmentMCount"] <- length(unique(treatment[treatment$VisitID == temp[i, "VisitID"], "TreatmentMolecule"]))
+    # temp[i+1, "PrevRecTreatment"] <- temp[i, "VisitID"] %in% DMTVisitIDs
+    # temp[i+1, "PrevTreatmentTCount"] <- length(unique(treatment[treatment$VisitID == temp[i, "VisitID"], "TreatmentType"]))
+    # temp[i+1, "PrevTreatmentMCount"] <- length(unique(treatment[treatment$VisitID == temp[i, "VisitID"], "TreatmentMolecule"]))
+    temp[i+1, getTreatmentClassStr(treatment[treatment$VisitID == temp[i, "VisitID"], "TreatmentType"])] <-1
+    temp[i+1, getAnalysisGrpStr(treatment[treatment$VisitID == temp[i, "VisitID"], "TreatmentMolecule"])] <- 1
     temp[i+1, "EDSSRate"] <- dEDSS/dYear
     temp[i+1, "MSSSRate"] <- dMSSS/dYear
     temp[i+1, "Siena_PBVCRate"] <- dSPBVC/dYear
