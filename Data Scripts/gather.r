@@ -100,40 +100,74 @@ target <- fullTable3[,c("VisitID","EPICID", "ExamDate", "ActualEDSS")]
 target <- target[order(target$EPICID, target$ExamDate),]
 target[, "ModEDSS"] <- NA
 nvisits <- nrow(target)
+# list of row number to remove
+rmVIDlist <- c()
 for(i in 1:(nvisits-1)){
-  newEDSS <- target[i+1, "ActualEDSS"]
-  dEDSS <- newEDSS - target[i, "ActualEDSS"]
-  if (newEDSS > 4){
-    ieq <- (abs(dEDSS) < 0.5)
-  } else {
-    ieq <- (abs(dEDSS) <= 0.5)
-  }
   if (target[i+1, "EPICID"] == target[i, "EPICID"] ){
-    # newModEDSS
-    if (newModEDSS){
-      if (ieq) {
-        target[i+1, "ModEDSS"] <- 0
+    dDay <-as.numeric(as.Date(target[i+1,]$ExamDate) - as.Date(target[i,]$ExamDate))
+    dYear <- dDay/365
+    if (dYear <2){
+      newEDSS <- target[i+1, "ActualEDSS"]
+      dEDSS <- newEDSS - target[i, "ActualEDSS"]
+      dEDSS2 <-  target[i+2, "ActualEDSS"] - target[i, "ActualEDSS"]
+      if (dEDSS >= 1){
+        target[i+1, 'ModEDSS'] <- 1
       } else {
-        if (dEDSS< 0){
-          target[i+1, "ModEDSS"] <- 0
+        if (dEDSS <= 0){
+          target[i+1,'ModEDSS'] <- 0
         } else {
-          target[i+1, "ModEDSS"] <- 1
+          if (dYear <=1){
+            target[i+1, 'ModEDSS'] <- 0
+          } else {
+            if (newEDSS >= 3){
+              target[i+1, 'ModEDSS'] <- 1
+            } else {
+              if (dEDSS2 <= 0 || is.na(dEDSS2)){
+                target[i,'ModEDSS'] <- 0
+              } else {
+                target[i+1, 'ModEDSS'] <- 1
+              }
+            }
+          }
         }
-      }  
-    } else {
-    # ModEDSS
-      if(abs(dEDSS) <= 0.5){
-        target[i+1, "ModEDSS"] <- 0
-      } else {
-        if (dEDSS< 0){
-          target[i+1, "ModEDSS"] <- 0
-        } else {
-          target[i+1, "ModEDSS"] <- 1
-        }   
       }
+    } else {
+      rmVIDlist <- c(rmlist, target[i, 'VisitID'])
     }
   }
+  # if (newEDSS > 4){
+  #   ieq <- (abs(dEDSS) < 0.5)
+  # } else {
+  #   ieq <- (abs(dEDSS) <= 0.5)
+  # }
+  # if (target[i+1, "EPICID"] == target[i, "EPICID"] ){
+  #   # newModEDSS
+  #   if (newModEDSS){
+  #     if (ieq) {
+  #       target[i+1, "ModEDSS"] <- 0
+  #     } else {
+  #       if (dEDSS< 0){
+  #         target[i+1, "ModEDSS"] <- 0
+  #       } else {
+  #         target[i+1, "ModEDSS"] <- 1
+  #       }
+  #     }  
+  #   } else {
+  #   # ModEDSS
+  #     if(abs(dEDSS) <= 0.5){
+  #       target[i+1, "ModEDSS"] <- 0
+  #     } else {
+  #       if (dEDSS< 0){
+  #         target[i+1, "ModEDSS"] <- 0
+  #       } else {
+  #         target[i+1, "ModEDSS"] <- 1
+  #       }   
+  #     }
+  #   }
+  # }
+
 }
+
 
 
 #### Merge and Iterate through the Visits and generate PrevXX and PrevXXRate #####
@@ -146,6 +180,8 @@ for(i in 1:(nvisits-1)){
 temp <- merge(target, core)
 temp <- merge(temp, exam)
 temp <- merge(temp, MRI)
+# Remove unwanted rows w/ Visit ID specified in rmVIDlist
+temp <- temp[! temp$VisitID %in% rmVIDlist, ]
 # Order temp for calculating PrevXXRate
 temp <- temp[order(temp$EPICID, temp$ExamDate),]
 # unique VisitID's in DMT
