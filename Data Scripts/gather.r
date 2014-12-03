@@ -106,7 +106,7 @@ for(i in 1:(nvisits-1)){
   if (target[i+1, "EPICID"] == target[i, "EPICID"] ){
     dDay <-as.numeric(as.Date(target[i+1,]$ExamDate) - as.Date(target[i,]$ExamDate))
     dYear <- dDay/365
-    if (dYear <2){
+    if (dYear <=2){
       newEDSS <- target[i+1, "ActualEDSS"]
       dEDSS <- newEDSS - target[i, "ActualEDSS"]
       dEDSS2 <-  target[i+2, "ActualEDSS"] - target[i, "ActualEDSS"]
@@ -116,14 +116,14 @@ for(i in 1:(nvisits-1)){
         if (dEDSS <= 0){
           target[i+1,'ModEDSS'] <- 0
         } else {
-          if (dYear <=1){
+          if (dYear >1){
             target[i+1, 'ModEDSS'] <- 0
           } else {
             if (newEDSS >= 3){
               target[i+1, 'ModEDSS'] <- 1
             } else {
               if (dEDSS2 <= 0 || is.na(dEDSS2)){
-                target[i,'ModEDSS'] <- 0
+                target[i+1,'ModEDSS'] <- 0
               } else {
                 target[i+1, 'ModEDSS'] <- 1
               }
@@ -132,7 +132,7 @@ for(i in 1:(nvisits-1)){
         }
       }
     } else {
-      rmVIDlist <- c(rmlist, target[i, 'VisitID'])
+      rmVIDlist <- c(rmVIDlist, target[i, 'VisitID'])
     }
   }
   # if (newEDSS > 4){
