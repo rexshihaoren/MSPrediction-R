@@ -1,7 +1,7 @@
 #### All the functions needed for MSBioScreen-R ######
 
 ### Packages ####
-setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
+setwd("Data Scripts")
 filePath <- 'data/predData.h5'
 filePathPython <- '../../MSPrediction-Python/data/'
 binarizePath<- 'data/binarize.RData'
@@ -19,9 +19,9 @@ require(RMySOL)
 # For knn
 require(DMwR)
 
-Binarize <- function(df, target){
-  # to Binarize a target column of a datafram
-  med <- median(df[, target])
+Binarize <- function(df, target, AggFun = median){
+  # to Binarize a target column of a dataframe
+  med <- AggFun(df[, target])
   bin <- df
   bin[, target] <- ifelse(bin[, target]<= med, 0 , 1)
   as.data.frame(bin)
@@ -30,13 +30,13 @@ Binarize <- function(df, target){
 DataProcessing <- function(df, target = ""){
   # Processing a data frame to make everything (0, 1] except the target col
   if (target == ""){
-    loc <- ncol(df)+1
+    loc <- ncol(df) + 1
   } else{
     loc <- grep(target, colnames(df))
   }
   processing <- df
   processing <- apply(processing, 2, function(x) (x-min(x))/(max(x)-min(x)))
-  processing[,-loc] <- apply(processing[,-loc], c(1,2), function(x) if (x == 0) x+1e-12 else x)
+  processing[,-loc] <- apply(processing[,-loc], c(1,2), function(x) if (x == 0) x + 1e-12 else x)
   as.data.frame(processing)
 }
 

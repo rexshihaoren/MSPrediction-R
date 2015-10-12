@@ -1,7 +1,6 @@
 #########Some additional features to add########
-setwd("~/Dropbox/research/MSBioScreen/MSPrediction-R/Data Scripts")
-source("helper.r")
-load("step0/result.RData")
+source("Code/Helper_Legacy.r")
+load("Data Scripts/step0/result.RData")
 load(ppPath)
 DMT<-read.table("tableDMT.csv")
 file.create(apPath)
